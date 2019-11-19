@@ -1,0 +1,22 @@
+{
+  "name": "adventofcode-2019",
+  "version": "0.1.0",
+  "description": "repository of proposed solutions to Advent Of Code 2019 edition",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lypnol/adventofcode-2019.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lypnol/adventofcode-2019/issues"
+  },
+  "homepage": "https://github.com/lypnol/adventofcode-2019#readme",
+  "dependencies": {
+    "lodash": "^4.17.11"
+  }
+}
