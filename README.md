@@ -12,7 +12,7 @@ These are proposed solutions for the [Advent of Code 2019](http://adventofcode.c
 
 The solutions are automatically tested with travis.
 
-[![Build Status](https://travis-ci.org/lypnol/adventofcode-2019.svg?branch=master)](https://travis-ci.org/lypnol/adventofcode-2019)
+[![Build Status](https://github.com/lypnol/adventofcode-2019/workflows/CI/badge.svg)](https://github.com/lypnol/adventofcode-2019/actions?query=branch%3Amaster)
 
 ## Usage
 
