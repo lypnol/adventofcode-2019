@@ -13,6 +13,8 @@ target/
 # To allow to work on gocode
 workspace
 
+.deps
+
 # No effing test ;)
 *_test.go
 
