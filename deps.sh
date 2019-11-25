@@ -7,6 +7,11 @@ curl https://sh.rustup.rs -sSf -o rustup.sh
 sh rustup.sh -y
 export PATH=$PATH:~/.cargo/bin
 
+# Install golang
+(cd /tmp && wget https://dl.google.com/go/go1.13.3.linux-amd64.tar.gz)
+sudo tar -xvf /tmp/go1.13.3.linux-amd64.tar.gz
+sudo mv /tmp/go /usr/local
+
 export PYENV_VERSION=3.7
 
 npm install
