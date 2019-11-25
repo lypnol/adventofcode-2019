@@ -5,7 +5,6 @@ import sys
 import datetime
 from collections import defaultdict
 from tabulate import tabulate
-from tqdm import tqdm
 # project
 import tool.discovery as discovery
 from tool.config import CONFIG
@@ -34,11 +33,9 @@ def run(days, parts, authors, ignored_authors, languages, force, silent, all_day
         results_by_author = defaultdict(list)
         results_by_input = defaultdict(list)
 
-        pbar = tqdm(total=len(inputs)*len(submissions) if not restricted else len(submissions))
         for input in inputs:
             previous = None
             for submission in submissions:
-                pbar.update(1)
                 # The split allows having author.lang and author.x.lang files, on the same input
                 if restricted and input.author != submission.author.split('.')[0]:
                     continue
@@ -54,7 +51,6 @@ def run(days, parts, authors, ignored_authors, languages, force, silent, all_day
         for submission in submissions:
             submission.runnable.cleanup()
 
-        pbar.close()
         if restricted:
             print_restrict_results(problem, results_by_author)
         elif expand:
