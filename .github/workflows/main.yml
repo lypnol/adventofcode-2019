@@ -17,7 +17,7 @@ jobs:
         python-version: '3.7'
     - uses: actions/setup-ruby@v1
       with:
-        ruby-version: '3.x'
+        ruby-version: 3
     - uses: actions/setup-go@v1
       with:
         go-version: '1.13.4'
@@ -30,7 +30,7 @@ jobs:
         args: --release --all-features
     - uses: actions/setup-node@v1
       with:
-        node-version: '10.x'
+        node-version: 10
 
     # install npm packages if not cached
     - uses: actions/cache@v1
