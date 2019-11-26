@@ -45,9 +45,9 @@ jobs:
     # install python packages if not cached
     - uses: actions/cache@v1
       id: cache-python
-        with:
-          path: ~/.local/lib/python3.7/site-packages
-          key: ${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+      with:
+        path: ~/.local/lib/python3.7/site-packages
+        key: ${{ runner.os }}-${{ hashFiles('requirements.txt') }}
     - name: deps-python
       if: steps.cache-python.outputs.cache-hit != 'true'
       run: sudo apt-get install python3-setuptools && python3 -m pip install --user wheel && python3 -m pip install --user -r requirements.txt
