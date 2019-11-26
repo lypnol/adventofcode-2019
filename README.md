@@ -10,7 +10,7 @@
 
 These are proposed solutions for the [Advent of Code 2019](http://adventofcode.com/2019).
 
-The solutions are automatically tested with travis.
+The solutions are automatically tested with github-actions.
 
 [![Build Status](https://github.com/lypnol/adventofcode-2019/workflows/CI/badge.svg)](https://github.com/lypnol/adventofcode-2019/actions?query=branch%3Amaster)
 
@@ -18,7 +18,7 @@ The solutions are automatically tested with travis.
 
 use `./aoc` script
 
-```text
+```
 usage: aoc <command> [<args>]
 
 aoc commands are:
@@ -31,11 +31,11 @@ aoc commands are:
 
 #### Run last problem
 
-```shell
+```
 ./aoc run
 ```
 
-```shell
+```
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Running submissions for day 04:
 
@@ -58,11 +58,11 @@ tpxp           41668      133.63 ms  rb
 
 #### Run specific problems from specific users
 
-```shell
+```
 ./aoc run -d 1 -d 2 -p 1 -a ayoub -a david
 ```
 
-```shell
+```
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Running submissions for day 01:
 
@@ -96,7 +96,7 @@ For now we support `c`, `c++`, `java`, `javascript`, `go`, `python 3` (+ `cython
 
 You can use `./aoc create` tool to create a new empty submission:
 
-```text
+```
 usage: aoc create [-h] [-a AUTHOR] [-d DAY] [-p PART]
                   [-l {c,cpp,go,java,js,py,pyx,rb,rs,sh}]
 
@@ -113,7 +113,7 @@ optional arguments:
 
 you can also use `./aoc config` to setup your local profile
 
-```text
+```
 usage: aoc config [-h] username {c,cpp,go,java,js,py,pyx,rb,rs,sh}
 
 Configures user parameters
@@ -128,7 +128,7 @@ positional arguments:
 
 If you don't use `./aoc create` tool you should follow this convention:
 
-```bash
+```
 day-[number]/part-[number]/[username].py    # your submission code
 day-[number]/input/[username].txt           # your input file
 ```
