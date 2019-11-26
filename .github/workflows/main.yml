@@ -26,16 +26,16 @@ jobs:
       with:
         node-version: '12.13.1'
 
-    # install rust if not cached
-    - uses: actions/cache@v1
-      name: cache-cargo
-      id: cache-cargo
-      with:
-        path: ~/.cargo
-        key: ${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
-    - name: deps-cargo
-      if: steps.cache-cargo.outputs.cache-hit != 'true'
-      run: curl https://sh.rustup.rs -sSf -o rustup.sh && sh rustup.sh -y
+    # install rust if not cached TODO
+    # - uses: actions/cache@v1
+    #   name: cache-cargo
+    #   id: cache-cargo
+    #   with:
+    #     path: ~/.cargo/.bin
+    #     key: ${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+    # - name: deps-cargo
+    #   if: steps.cache-cargo.outputs.cache-hit != 'true'
+    #   run: curl https://sh.rustup.rs -sSf -o rustup.sh && sh rustup.sh -y
 
     # install npm packages if not cached
     - uses: actions/cache@v1
