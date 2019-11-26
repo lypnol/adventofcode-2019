@@ -22,13 +22,19 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: '8'
-    - uses: actions-rs/cargo@v1
-      with:
-        command: build
-        args: --release --all-features
     - uses: actions/setup-node@v1
       with:
         node-version: '12.13.1'
+
+    # install rust if not cached
+    - uses: actions/cache@v1
+      id: cache-cargo
+      with:
+        path: ~/.cargo
+        key: ${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+    - name: deps-cargo
+      if: steps.cache-cargo.outputs.cache-hit != 'true'
+      run: curl https://sh.rustup.rs -sSf -o rustup.sh && sh rustup.sh -y
 
     # install npm packages if not cached
     - uses: actions/cache@v1
