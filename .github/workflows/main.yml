@@ -28,6 +28,7 @@ jobs:
 
     # install rust if not cached
     - uses: actions/cache@v1
+      name: cache-cargo
       id: cache-cargo
       with:
         path: ~/.cargo
@@ -38,6 +39,7 @@ jobs:
 
     # install npm packages if not cached
     - uses: actions/cache@v1
+      name: cache-npm
       id: cache-npm
       with:
         path: node_modules
@@ -48,6 +50,7 @@ jobs:
     
     # install python packages if not cached
     - uses: actions/cache@v1
+      name: cache-python
       id: cache-python
       with:
         path: ~/.local/lib/python3.7/site-packages
