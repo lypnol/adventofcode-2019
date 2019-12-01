@@ -5,13 +5,12 @@ from tool.runners.wrapper import SubmissionWrapper
 
 
 class SubmissionJs(SubmissionWrapper):
-
     def __init__(self, file):
         SubmissionWrapper.__init__(self)
         self.file = file
 
     def language(self):
-        return 'js'
+        return "js"
 
     def exec(self, input):
         try:

@@ -8,22 +8,20 @@ import os.path
 from tool.utils import mkdirp
 
 
-_CONFIG_PATH = '.aoc'
-_CONFIG_FILE = os.path.join(_CONFIG_PATH, 'config.cfg')
-_CONFIG_SECTION = 'preferences'
+_CONFIG_PATH = ".aoc"
+_CONFIG_FILE = os.path.join(_CONFIG_PATH, "config.cfg")
+_CONFIG_SECTION = "preferences"
 
 
 class Config(object):
-
     @staticmethod
     def load():
         config = configparser.ConfigParser()
-        config[_CONFIG_SECTION] = {
-            'username': '',
-            'language': 'py',
-        }
+        config[_CONFIG_SECTION] = {"username": "", "language": "py"}
         config.read(_CONFIG_FILE)
-        return Config(config[_CONFIG_SECTION]['username'], config[_CONFIG_SECTION]['language'])
+        return Config(
+            config[_CONFIG_SECTION]["username"], config[_CONFIG_SECTION]["language"]
+        )
 
     def __init__(self, user, language):
         self.user = user
@@ -31,12 +29,9 @@ class Config(object):
 
     def save(self):
         config = configparser.ConfigParser()
-        config[_CONFIG_SECTION] = {
-            'username': self.user,
-            'language': self.language,
-        }
+        config[_CONFIG_SECTION] = {"username": self.user, "language": self.language}
         mkdirp(_CONFIG_PATH)
-        with open(_CONFIG_FILE, 'w') as configfile:
+        with open(_CONFIG_FILE, "w") as configfile:
             config.write(configfile)
 
 

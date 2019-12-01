@@ -11,14 +11,14 @@ class BColor:
     BColor printable colors in terminal
     """
 
-    RED = '\033[91m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    MAGENTA = '\033[95m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+    RED = "\033[91m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    MAGENTA = "\033[95m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
 
 
 def mkdirp(path):
@@ -41,4 +41,4 @@ def resolve_path(*path):
     resolve_path('foo', 'bar') will give an absolute path to your_project_directory/foo/bar
     If the path is already absolute, it will stay absolute
     """
-    return os.path.abspath(os.path.join(_orig_dir, '..', '..', *path))
+    return os.path.abspath(os.path.join(_orig_dir, "..", "..", *path))

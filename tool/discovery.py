@@ -5,20 +5,25 @@ import glob
 import os.path
 from os import walk
 from shutil import which
+
 # project
 from tool.runners import LANGUAGES, TOOL_BY_LANGUAGE, ext_by_language, language_by_ext
 from tool.model import Problem, Submission, Input
 
 
-_DAY_PATH_PATTERN = 'day-[0-9]*'
-_PART_PATH_PATTERN = 'part-[0-9]*'
+_DAY_PATH_PATTERN = "day-[0-9]*"
+_PART_PATH_PATTERN = "part-[0-9]*"
 supported_languages = []
 
 
 def get_supported_languages():
     global supported_languages
     if not supported_languages:
-        supported_languages = [language for language in LANGUAGES if which(TOOL_BY_LANGUAGE[language]) is not None]
+        supported_languages = [
+            language
+            for language in LANGUAGES
+            if which(TOOL_BY_LANGUAGE[language]) is not None
+        ]
     return supported_languages
 
 
@@ -48,14 +53,7 @@ def get_all_problems(days=None):
 
 
 def get_all_days():
-    return sorted(
-        list(
-            map(
-                lambda x: int(x[-2:]),
-                list(glob.glob(_DAY_PATH_PATTERN))
-            )
-        )
-    )
+    return sorted(list(map(lambda x: int(x[-2:]), list(glob.glob(_DAY_PATH_PATTERN)))))
 
 
 def get_parts_for_day(day):
@@ -63,7 +61,11 @@ def get_parts_for_day(day):
         list(
             map(
                 lambda x: int(x[-1]),
-                list(glob.glob(os.path.join(Problem.day_to_path(day), _PART_PATH_PATTERN)))
+                list(
+                    glob.glob(
+                        os.path.join(Problem.day_to_path(day), _PART_PATH_PATTERN)
+                    )
+                ),
             )
         )
     )
@@ -74,7 +76,7 @@ def get_days_for_part(part):
         list(
             map(
                 lambda x: int(x[4:6]),
-                list(glob.glob(os.path.join(_DAY_PATH_PATTERN, "part-%d" % part)))
+                list(glob.glob(os.path.join(_DAY_PATH_PATTERN, "part-%d" % part))),
             )
         )
     )
@@ -85,7 +87,9 @@ def get_problems(days, parts, all_days_parts=False):
     if all_days_parts:
         problems = get_all_problems()
     elif days and parts:
-        problems = [problem for problem in get_all_problems(days) if problem.part in parts]
+        problems = [
+            problem for problem in get_all_problems(days) if problem.part in parts
+        ]
     elif days:
         problems = get_all_problems(days)
     elif parts:
@@ -101,20 +105,23 @@ def get_problems(days, parts, all_days_parts=False):
         latest = get_latest_problem()
         if latest:
             problems = [
-                Problem(latest.day, part)
-                for part in get_parts_for_day(latest.day)
+                Problem(latest.day, part) for part in get_parts_for_day(latest.day)
             ]
     return sorted(problems, key=lambda p: (p.day, p.part))
 
 
-def get_submissions(problem, authors=None, ignored_authors=None, languages=None, force=False):
+def get_submissions(
+    problem, authors=None, ignored_authors=None, languages=None, force=False
+):
     if not languages:
         if force:
             languages = LANGUAGES
         else:
             languages = get_supported_languages()
     elif not force:
-        languages = [language for language in languages if language in get_supported_languages()]
+        languages = [
+            language for language in languages if language in get_supported_languages()
+        ]
 
     extensions = set([ext_by_language(language) for language in languages])
 
@@ -123,7 +130,7 @@ def get_submissions(problem, authors=None, ignored_authors=None, languages=None,
         for filename in files:
             submission, ext = os.path.splitext(filename)
             author = os.path.basename(submission)
-            if (ext not in extensions) or filename.endswith('_test.go'):
+            if (ext not in extensions) or filename.endswith("_test.go"):
                 continue
             if ignored_authors and author in ignored_authors:
                 continue
@@ -135,13 +142,13 @@ def get_submissions(problem, authors=None, ignored_authors=None, languages=None,
 
 
 def get_inputs(problem):
-    inputs_path = os.path.join(problem.day_path(), 'input')
+    inputs_path = os.path.join(problem.day_path(), "input")
     if not os.path.exists(inputs_path):
         return []
 
     inputs = []
-    for input_file in glob.glob(os.path.join(inputs_path, '*.txt')):
+    for input_file in glob.glob(os.path.join(inputs_path, "*.txt")):
         author = os.path.splitext(os.path.basename(input_file))[0].lower()
-        with open(input_file, 'r') as content_file:
+        with open(input_file, "r") as content_file:
             inputs.append(Input(problem, author, content_file.read().rstrip()))
     return inputs

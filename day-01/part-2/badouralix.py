@@ -3,7 +3,6 @@ from typing import Dict, List, Tuple
 
 
 class BadouralixSubmission(SubmissionPy):
-
     def __init__(self):
         # Handmade memoization
         self.fuel_requirement_cache: Dict[int, int] = dict()

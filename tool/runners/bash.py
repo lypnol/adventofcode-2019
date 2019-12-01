@@ -7,14 +7,13 @@ from tool.runners.wrapper import SubmissionWrapper
 
 
 class SubmissionBash(SubmissionWrapper):
-
     def __init__(self, file):
         SubmissionWrapper.__init__(self)
         self.executable = f"./{file}"
         os.chmod(self.executable, os.stat(self.executable).st_mode | stat.S_IEXEC)
 
     def language(self):
-        return 'sh'
+        return "sh"
 
     def exec(self, input):
         try:

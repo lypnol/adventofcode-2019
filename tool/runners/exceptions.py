@@ -1,4 +1,3 @@
-
 class CompilationError(Exception):
     pass
 

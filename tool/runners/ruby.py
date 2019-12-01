@@ -5,13 +5,12 @@ from tool.runners.wrapper import SubmissionWrapper
 
 
 class SubmissionRb(SubmissionWrapper):
-
     def __init__(self, file):
         SubmissionWrapper.__init__(self)
         self.file = file
 
     def language(self):
-        return 'rb'
+        return "rb"
 
     def exec(self, input):
         try:
