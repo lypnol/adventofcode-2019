@@ -42,17 +42,25 @@ def create_submission(author, path, language):
     submission_file = os.path.join(path, f"{author}.{language}")
 
     # Extract submission template
-    if language == 'py':
+    if language == "py":
         # Create a dedicated class with the author name
-        class_name = ''.join(x for x in f"{author} submission".title() if not x.isspace())
-        submission_content = open(os.path.join(TEMPLATES_PATH, "template.py")).read().format(class_name=class_name)
+        class_name = "".join(
+            x for x in f"{author} submission".title() if not x.isspace()
+        )
+        submission_content = (
+            open(os.path.join(TEMPLATES_PATH, "template.py"))
+            .read()
+            .format(class_name=class_name)
+        )
     else:
-        submission_content = open(os.path.join(TEMPLATES_PATH, f"template.{language}")).read()
+        submission_content = open(
+            os.path.join(TEMPLATES_PATH, f"template.{language}")
+        ).read()
 
     # Write template to submission file if it is empty
     if os.path.exists(submission_file):
         raise FileNotEmptyException(f"{submission_file} not empty")
-    with open(submission_file, 'w') as f:
+    with open(submission_file, "w") as f:
         f.write(submission_content)
 
     # Log success
@@ -62,13 +70,17 @@ def create_submission(author, path, language):
     if language == "rs":
         submission_name = f"{re.sub('[^0-9a-zA-Z]+', '-', path[2:])}-{author}"
         cargo = open(os.path.join("Cargo.toml"), "a")
-        cargo.write(f"\n[[bin]]\nname = \"{submission_name}\"\npath = \"{submission_file}\"\n")
+        cargo.write(
+            f'\n[[bin]]\nname = "{submission_name}"\npath = "{submission_file}"\n'
+        )
         print("[+] added submission to Cargo.toml")
 
     # Create a symlink to workspace if it is a Golang project
     if language == "go":
         workspace_directory = os.path.join("./workspace", os.path.normpath(path))
-        workspace_submission_file = os.path.join("./workspace", os.path.normpath(submission_file))
+        workspace_submission_file = os.path.join(
+            "./workspace", os.path.normpath(submission_file)
+        )
         if not os.path.exists(workspace_submission_file):
             os.makedirs(workspace_directory, mode=0o777, exist_ok=True)
             os.symlink(os.path.realpath(submission_file), workspace_submission_file)
@@ -83,7 +95,7 @@ def create_input(author, path):
     # Create input file
     if os.path.exists(input_file):
         raise FileNotEmptyException(f"{input_file} not empty")
-    with open(input_file, 'a') as f:
+    with open(input_file, "a") as f:
         f.close()
 
     # Log success
@@ -99,8 +111,11 @@ def create(day, part, author, language):
         author = CONFIG.user
 
     if not author:
-        print("""please set your username using config command:
-aoc config <username> <language>""", file=sys.stderr)
+        print(
+            """please set your username using config command:
+aoc config <username> <language>""",
+            file=sys.stderr,
+        )
         exit(1)
 
     if not language:

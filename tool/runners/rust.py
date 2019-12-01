@@ -8,29 +8,30 @@ from tool.runners.exceptions import CompilationError, RuntimeError
 
 
 class SubmissionRs(SubmissionWrapper):
-
     def __init__(self, file):
-        DEVNULL = open(os.devnull, 'wb')
+        DEVNULL = open(os.devnull, "wb")
         SubmissionWrapper.__init__(self)
         tmpdir = tempfile.TemporaryDirectory(prefix="aoc")
         tmpdir.cleanup()
         try:
             subprocess.check_output(
-                ["cargo", "test", "--bin", file.replace('/', '-')[:-3]], stderr=DEVNULL).decode()
+                ["cargo", "test", "--bin", file.replace("/", "-")[:-3]], stderr=DEVNULL
+            ).decode()
         except subprocess.CalledProcessError as e:
             raise CompilationError(e.output)
 
-        e = subprocess.Popen(["cargo", "build", "--release", "--bin",
-                              file.replace('/', '-')[:-3]],
-                             env={**os.environ, "CARGO_TARGET_DIR": tmpdir.name},
-                             stdout=DEVNULL,
-                             stderr=DEVNULL).wait()
+        e = subprocess.Popen(
+            ["cargo", "build", "--release", "--bin", file.replace("/", "-")[:-3]],
+            env={**os.environ, "CARGO_TARGET_DIR": tmpdir.name},
+            stdout=DEVNULL,
+            stderr=DEVNULL,
+        ).wait()
         if e > 0:
             raise CompilationError("Could not compile " + file)
-        self.executable = tmpdir.name + "/release/" + file.replace('/', '-')[:-3]
+        self.executable = tmpdir.name + "/release/" + file.replace("/", "-")[:-3]
 
     def language(self):
-        return 'rs'
+        return "rs"
 
     def exec(self, input):
         try:

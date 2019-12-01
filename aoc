@@ -2,5 +2,5 @@
 
 from tool.AOC import AOC
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     AOC()

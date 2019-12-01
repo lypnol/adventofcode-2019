@@ -2,12 +2,12 @@
 
 # stdlib
 import os.path
+
 # project
 from tool.runners import ext_by_language, load_submission_runnable
 
 
 class Problem(object):
-
     @staticmethod
     def day_to_path(day):
         return "day-%02d" % day
@@ -32,13 +32,21 @@ class Submission(object):
         self.author = author
         self.language = language
         self.content = content
-        self.runnable = load_submission_runnable(self.path(), language) if init_runnable else None
+        self.runnable = (
+            load_submission_runnable(self.path(), language) if init_runnable else None
+        )
 
     def __repr__(self):
-        return "Submission{%s, by %s, in %s}" % (self.problem, self.author, self.language)
+        return "Submission{%s, by %s, in %s}" % (
+            self.problem,
+            self.author,
+            self.language,
+        )
 
     def path(self):
-        return os.path.join(self.problem.path(), "%s%s" % (self.author, ext_by_language(self.language)))
+        return os.path.join(
+            self.problem.path(), "%s%s" % (self.author, ext_by_language(self.language))
+        )
 
 
 class Input(object):
@@ -48,7 +56,11 @@ class Input(object):
         self.content = content
 
     def __repr__(self):
-        return "Input{%s, by %s, size %d}" % (self.problem, self.author, len(self.content))
+        return "Input{%s, by %s, size %d}" % (
+            self.problem,
+            self.author,
+            len(self.content),
+        )
 
     def path(self):
         return os.path.join(self.problem.day_path(), "input", self.author + ".txt")
@@ -63,4 +75,9 @@ class Result(object):
         self.duration = duration
 
     def __repr__(self):
-        return "Result{%s, %s, %s, %s}" % (self.problem, self.submission, self.input, self.answer)
+        return "Result{%s, %s, %s, %s}" % (
+            self.problem,
+            self.submission,
+            self.input,
+            self.answer,
+        )

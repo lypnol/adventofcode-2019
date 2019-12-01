@@ -9,12 +9,13 @@ from tool.runners.exceptions import CompilationError, RuntimeError, Dependencies
 
 
 class SubmissionGo(SubmissionWrapper):
-
     def __init__(self, file):
         SubmissionWrapper.__init__(self)
         relpath = os.path.join(".", file)
         abspath = os.path.realpath(file)
-        gopath = os.path.realpath(check_output(["go", "env", "GOPATH"]).decode().strip())
+        gopath = os.path.realpath(
+            check_output(["go", "env", "GOPATH"]).decode().strip()
+        )
         if not abspath.startswith(gopath):
             dep_output = check_output(["go", "get", "-d", relpath]).decode()
             if dep_output:
@@ -28,7 +29,7 @@ class SubmissionGo(SubmissionWrapper):
         self.executable = tmp.name
 
     def language(self):
-        return 'go'
+        return "go"
 
     def exec(self, input):
         try:
