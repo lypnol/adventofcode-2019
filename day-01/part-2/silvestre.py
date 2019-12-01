@@ -6,7 +6,7 @@ class SilvestreSubmission(SubmissionPy):
     def run(self, s):
 
         def total_fuel(el):
-            if el < 8:
+            if el < 9:
                 return 0
             else:
                 fuel = el // 3 - 2
