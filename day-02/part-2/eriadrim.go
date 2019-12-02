@@ -37,19 +37,6 @@ func execute(program []int) int {
 		if program[i] == 99 {
 			return program[0]
 		}
-
-		if i+3 >= len(program){
-			return 0
-		}
-		if program[i+1] < 0 || program[i+1] >= len(program) {
-			return 0
-		}
-		if program[i+2] < 0 || program[i+2] >= len(program) {
-			return 0
-		}
-		if program[i+3] < 0 || program[i+3] >= len(program) {
-			return 0
-		}
 		switch program[i] {
 		case 1:
 			program[program[i+3]] = program[program[i+1]] + program[program[i+2]]
