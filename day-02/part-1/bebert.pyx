@@ -1,6 +1,6 @@
 cpdef int run(s):
     # s = "1,9,10,3,2,3,11,0,99,30,40,50"
-    cdef LEN_CODE = 200
+    cdef int LEN_CODE = 200
     cdef int[200] codes
     cdef int i
     cdef str x
