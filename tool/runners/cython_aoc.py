@@ -8,6 +8,9 @@ from tool.runners.python import SubmissionPy
 from tool.runners.exceptions import RuntimeError
 
 
+CYTHON_DEBUG = bool(os.getenv('CYTHON_DEBUG', ''))
+
+
 class SubmissionPyx(SubmissionPy):
     def __init__(self, file):
         SubmissionPy.__init__(self)
@@ -61,6 +64,9 @@ class SubmissionPyx(SubmissionPy):
             raise RuntimeError(e)
 
     def cleanup(self):
+        if CYTHON_DEBUG:
+            print("Debug mode, keeping Cython build directory")
+            return
         try:
             shutil.rmtree(self.build_dir)
         except Exception as e:
