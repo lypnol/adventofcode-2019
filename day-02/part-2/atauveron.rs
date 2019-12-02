@@ -23,8 +23,8 @@ fn run(input: &str) -> usize {
             let mut local_codes = codes.clone();
             local_codes[1] = i;
             local_codes[2] = j;
-            let res = run_codes(&mut local_codes);
-            if res == 19690720 {
+            run_codes(&mut local_codes);
+            if local_codes[0] == 19690720 {
                 return 100 * i + j;
             }
         }
@@ -32,7 +32,7 @@ fn run(input: &str) -> usize {
     panic!("No solution found");
 }
 
-fn run_codes(codes: &mut [usize]) -> usize {
+fn run_codes(codes: &mut [usize]) -> () {
     let mut index: usize = 0;
     loop {
         match &codes[index] {
@@ -40,23 +40,18 @@ fn run_codes(codes: &mut [usize]) -> usize {
                 let left = codes[index + 1];
                 let right = codes[index + 2];
                 let res = codes[index + 3];
-                let lhs = codes[left];
-                let rhs = codes[right];
-                codes[res] = lhs + rhs;
+                codes[res] = codes[left] + codes[right];
                 index += 4;
             }
             2 => {
                 let left = codes[index + 1];
                 let right = codes[index + 2];
                 let res = codes[index + 3];
-                let lhs = codes[left];
-                let rhs = codes[right];
-                codes[res] = lhs * rhs;
+                codes[res] = codes[left] * codes[right];
                 index += 4;
             }
             99 => break,
             _ => panic!("Unknown op code {} at index {}", codes[index], index),
         }
     }
-    codes[0]
 }
