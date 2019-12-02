@@ -3,7 +3,7 @@ use std::time::Instant;
 
 fn main() {
     let now = Instant::now();
-    let output: String = run(args().nth(1).expect("Please provide an input"));
+    let output = run(&args().nth(1).expect("Please provide an input"));
     let elapsed = now.elapsed();
     println!(
         "_duration:{}.{}",
@@ -13,9 +13,9 @@ fn main() {
     println!("{}", output);
 }
 
-fn run(input: String) -> String {
+fn run(input: &str) -> String {
     // Your code goes here
-    input
+    input.to_string()
 }
 
 #[cfg(test)]
