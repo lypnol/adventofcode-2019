@@ -5,11 +5,7 @@ fn main() {
     let now = Instant::now();
     let output: String = run(args().nth(1).expect("Please provide an input"));
     let elapsed = now.elapsed();
-    println!(
-        "_duration:{}.{}",
-        elapsed.as_secs() * 1000 + u64::from(elapsed.subsec_millis()),
-        elapsed.subsec_micros() - (elapsed.subsec_millis() * 1000)
-    );
+    println!("_duration:{}", elapsed.as_secs_f64() * 1000.);
     println!("{}", output);
 }
 
