@@ -17,7 +17,7 @@ def run(s)
     x,y = [0,0]
     s[0].split(',').each do |command|
         dx, dy = get_dx_dy(command[0])
-        length = command[1..].to_i
+        length = command[1..-1].to_i
         length.times do |index|
             x += dx
             y += dy
@@ -28,7 +28,7 @@ def run(s)
     min_dist = Float::INFINITY
     s[1].split(',').each do |command|
         dx, dy = get_dx_dy(command[0])
-        length = command[1..].to_i
+        length = command[1..-1].to_i
         length.times do |index|
             x += dx
             y += dy
