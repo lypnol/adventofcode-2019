@@ -1,6 +1,8 @@
 use std::env::args;
 use std::time::Instant;
 
+use std::collections::HashSet;
+
 fn main() {
     let now = Instant::now();
     let output = run(&args().nth(1).expect("Please provide an input"));
@@ -15,7 +17,7 @@ fn run(input: &str) -> isize {
     let second = lines.next().unwrap().split(",");
 
     // First wire
-    let mut first_pos: Vec<(isize, isize)> = Vec::new();
+    let mut first_pos: HashSet<(isize, isize)> = HashSet::new();
     let mut pos = (0, 0);
     for mov in first {
         let dir = mov.chars().nth(0).unwrap();
@@ -24,32 +26,32 @@ fn run(input: &str) -> isize {
             'R' => {
                 for _ in 0..dist {
                     pos.0 += 1;
-                    first_pos.push(pos);
+                    first_pos.insert(pos);
                 }
             }
             'L' => {
                 for _ in 0..dist {
                     pos.0 -= 1;
-                    first_pos.push(pos);
+                    first_pos.insert(pos);
                 }
             }
             'U' => {
                 for _ in 0..dist {
                     pos.1 += 1;
-                    first_pos.push(pos);
+                    first_pos.insert(pos);
                 }
             }
             'D' => {
                 for _ in 0..dist {
                     pos.1 -= 1;
-                    first_pos.push(pos);
+                    first_pos.insert(pos);
                 }
             },
             _ => panic!("Unknown vector {}", mov),
         };
     }
     // Second wire
-    let mut second_pos: Vec<(isize, isize)> = Vec::new();
+    let mut second_pos: HashSet<(isize, isize)> = HashSet::new();
     let mut pos = (0, 0);
     for mov in second {
         let dir = mov.chars().nth(0).unwrap();
@@ -58,43 +60,38 @@ fn run(input: &str) -> isize {
             'R' => {
                 for _ in 0..dist {
                     pos.0 += 1;
-                    second_pos.push(pos);
+                    second_pos.insert(pos);
                 }
             }
             'L' => {
                 for _ in 0..dist {
                     pos.0 -= 1;
-                    second_pos.push(pos);
+                    second_pos.insert(pos);
                 }
             }
             'U' => {
                 for _ in 0..dist {
                     pos.1 += 1;
-                    second_pos.push(pos);
+                    second_pos.insert(pos);
                 }
             }
             'D' => {
                 for _ in 0..dist {
                     pos.1 -= 1;
-                    second_pos.push(pos);
+                    second_pos.insert(pos);
                 }
             },
             _ => panic!("Unknown vector {}", mov),
         };
     }
-    // Compute every intersection and find the minimum
+    // Get intersections
     let mut min_local = isize::max_value();
-    for (x1, y1) in &first_pos {
-        for (x2, y2) in &second_pos {
-            if x1 == x2 && y1 == y2 {
-                let tmp = x1.abs() + y1.abs();
-                if tmp < min_local {
-                    min_local = tmp;
-                }
-            }
+    for (x, y) in first_pos.intersection(&second_pos) {
+        let tmp = x.abs() + y.abs();
+        if tmp < min_local {
+            min_local = tmp;
         }
     }
-    // Your code goes here
     min_local
 }
 
