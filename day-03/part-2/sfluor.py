@@ -1,17 +1,22 @@
 from tool.runners.python import SubmissionPy
 from collections import namedtuple
 
-Segment = namedtuple("Segment", "p q")
+Segment = namedtuple("Segment", "p q steps")
 Point = namedtuple("Point", "x y")
 
 
 class SfluorSubmission(SubmissionPy):
-    def dist(self, point):
-        return abs(point.x) + abs(point.y)
+    def seg_dist(self, seg, point):
+        if seg.p.x == seg.q.x:
+            return abs(point.y - seg.p.y)
+
+        return abs(point.x - seg.p.x)
 
     def segments(self, wire):
         curr = Point(0, 0)
         segms = []
+
+        steps = 0
 
         for p in wire.split(","):
             direction = p[0]
@@ -28,13 +33,14 @@ class SfluorSubmission(SubmissionPy):
             if direction == "D":
                 new_point = Point(curr.x, curr.y - value)
 
-            segms.append(Segment(curr, new_point))
+            segms.append(Segment(curr, new_point, steps))
+            steps += value
             curr = new_point
 
         return segms
 
     def intersects(self, seg1, seg2):
-        (p1, q1) = seg1
+        (p1, q1, _) = seg1
 
         # XXX: Ignore the case where we have two // segments
         v, h = None, None
@@ -67,7 +73,7 @@ class SfluorSubmission(SubmissionPy):
         origin = Point(0, 0)
         w1, w2 = [self.segments(w) for w in s.splitlines()]
 
-        min_dist = None
+        steps = None
 
         for s1 in w1:
             for s2 in w2:
@@ -75,9 +81,9 @@ class SfluorSubmission(SubmissionPy):
                 if p is None or p == origin:
                     continue
 
-                d = self.dist(p)
+                s = s1.steps + self.seg_dist(s1, p) + s2.steps + self.seg_dist(s2, p)
 
-                if min_dist is None or d < min_dist:
-                    min_dist = d
+                if steps is None or s < steps:
+                    steps = s
 
-        return min_dist
+        return steps
