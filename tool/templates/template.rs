@@ -3,19 +3,15 @@ use std::time::Instant;
 
 fn main() {
     let now = Instant::now();
-    let output: String = run(args().nth(1).expect("Please provide an input"));
+    let output = run(&args().nth(1).expect("Please provide an input"));
     let elapsed = now.elapsed();
-    println!(
-        "_duration:{}.{}",
-        elapsed.as_secs() * 1000 + u64::from(elapsed.subsec_millis()),
-        elapsed.subsec_micros() - (elapsed.subsec_millis() * 1000)
-    );
+    println!("_duration:{}", elapsed.as_secs_f64() * 1000.);
     println!("{}", output);
 }
 
-fn run(input: String) -> String {
+fn run(input: &str) -> isize {
     // Your code goes here
-    input
+    0
 }
 
 #[cfg(test)]
@@ -24,6 +20,6 @@ mod tests {
 
     #[test]
     fn run_test() {
-        assert_eq!(run("Test example".to_string()), "Test example".to_string())
+        assert_eq!(run("Test example"), 0)
     }
 }
