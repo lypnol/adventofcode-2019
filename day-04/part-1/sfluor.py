@@ -28,6 +28,5 @@ class SfluorSubmission(SubmissionPy):
         # :return: solution flag
         # Your code goes here
         inf, sup = [int(x) for x in s.split("-")]
-        print(inf, sup)
 
         return sum([valid(x) for x in range(inf, sup + 1)])
