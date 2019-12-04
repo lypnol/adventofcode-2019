@@ -4,12 +4,12 @@
 #include <string.h>
 
 int coords(int x, int y){
-    return (30000 * (x + 15000)) + (y + 15000);
+    return (40000 * (x + 20000)) + (y + 20000);
 }
 
 int run(char* str){
     int *space;
-    space = (int *)malloc(sizeof(int)*30000*30000);
+    space = (int *)malloc(sizeof(int)*40000*40000);
 
     int last_x = 0;
     int last_y = 0;
