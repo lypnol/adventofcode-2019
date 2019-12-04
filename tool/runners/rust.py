@@ -20,13 +20,13 @@ class SubmissionRs(SubmissionWrapper):
         except subprocess.CalledProcessError as e:
             raise CompilationError(e.output)
 
-        e = subprocess.Popen(
+        p = subprocess.Popen(
             ["cargo", "build", "--release", "--bin", file.replace("/", "-")[:-3]],
             env={**os.environ, "CARGO_TARGET_DIR": tmpdir.name},
             stdout=DEVNULL,
             stderr=DEVNULL,
         ).wait()
-        if e > 0:
+        if p > 0:
             raise CompilationError("Could not compile " + file)
         self.executable = tmpdir.name + "/release/" + file.replace("/", "-")[:-3]
 
