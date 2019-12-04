@@ -10,27 +10,17 @@ import (
 	"time"
 )
 
-const (
-
-)
-
 type direction struct {
 	min int
 	max int
 	pos int
 }
 
-type verticalDirections []direction
+type directions []direction
 
-func (v verticalDirections) Len() int           { return len(v) }
-func (v verticalDirections) Swap(i, j int)      { v[i], v[j] = v[j], v[i] }
-func (v verticalDirections) Less(i, j int) bool { return v[i].pos < v[j].pos }
-
-type horizontalDirections []direction
-
-func (v horizontalDirections) Len() int           { return len(v) }
-func (v horizontalDirections) Swap(i, j int)      { v[i], v[j] = v[j], v[i] }
-func (v horizontalDirections) Less(i, j int) bool { return v[i].min < v[j].min }
+func (v directions) Len() int           { return len(v) }
+func (v directions) Swap(i, j int)      { v[i], v[j] = v[j], v[i] }
+func (v directions) Less(i, j int) bool { return abs(v[i].pos) < abs(v[j].pos) }
 
 func getDirections(rawInstructions []string) ([]direction, []direction) {
 	verticalDirections := make([]direction, len(rawInstructions)/2 + 1)
@@ -81,36 +71,44 @@ func getDirections(rawInstructions []string) ([]direction, []direction) {
 	return verticalDirections, horizontalDirections
 }
 
-func getMinDist(vert verticalDirections, hor horizontalDirections) int {
+func abs(a int) int {
+	if a > 0 {
+		return a
+	}
+	return -a
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func getMinDist(vert directions, hor directions) int {
 	sort.Sort(vert)
 	sort.Sort(hor)
 
 	dMin := -1
 	for _, lineV := range vert {
+		if dMin != -1 && dMin < abs(lineV.pos) {
+			return dMin
+		}
+		limit := max(abs(lineV.min), abs(lineV.max))
 		for _, lineH := range hor {
-			if lineH.min > lineV.pos {
+			if (dMin != -1 && dMin < abs(lineV.pos) + abs(lineH.pos)) || limit < abs(lineH.pos) {
 				break
 			}
-			if lineH.max < lineV.pos || lineV.min > lineH.pos || lineV.max < lineH.pos {
+			if lineH.min > lineV.pos || lineH.max < lineV.pos || lineV.min > lineH.pos || lineV.max < lineH.pos {
 				continue
 			}
 
-			d := 0
-			if lineH.pos > 0 {
-				d += lineH.pos
-			} else {
-				d -= lineH.pos
-			}
-
-			if lineV.pos > 0 {
-				d += lineV.pos
-			} else {
-				d -= lineV.pos
-			}
+			d := abs(lineH.pos) + abs(lineV.pos)
 
 			if d > 0 && (dMin == -1 || d < dMin) {
 				dMin = d
 			}
+			break
 		}
 	}
 
