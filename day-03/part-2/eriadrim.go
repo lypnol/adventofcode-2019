@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -21,18 +20,6 @@ type direction struct {
 	steps int
 	inv bool
 }
-
-type verticalDirections []direction
-
-func (v verticalDirections) Len() int           { return len(v) }
-func (v verticalDirections) Swap(i, j int)      { v[i], v[j] = v[j], v[i] }
-func (v verticalDirections) Less(i, j int) bool { return v[i].pos < v[j].pos }
-
-type horizontalDirections []direction
-
-func (v horizontalDirections) Len() int           { return len(v) }
-func (v horizontalDirections) Swap(i, j int)      { v[i], v[j] = v[j], v[i] }
-func (v horizontalDirections) Less(i, j int) bool { return v[i].min < v[j].min }
 
 func getDirections(rawInstructions []string) ([]direction, []direction) {
 	verticalDirections := make([]direction, len(rawInstructions)/2 + 1)
@@ -86,17 +73,18 @@ func getDirections(rawInstructions []string) ([]direction, []direction) {
 	return verticalDirections, horizontalDirections
 }
 
-func getMinDist(vert verticalDirections, hor horizontalDirections) int {
-	sort.Sort(vert)
-	sort.Sort(hor)
+func getMinDist(vert []direction, hor []direction) int {
 
 	dMin := -1
 	for _, lineV := range vert {
+		if dMin != -1 && dMin < lineV.steps {
+			return dMin
+		}
 		for _, lineH := range hor {
-			if lineH.min > lineV.pos {
+			if dMin != -1 && dMin < lineV.steps + lineH.steps {
 				break
 			}
-			if lineH.max < lineV.pos || lineV.min > lineH.pos || lineV.max < lineH.pos {
+			if lineH.min > lineV.pos || lineH.max < lineV.pos || lineV.min > lineH.pos || lineV.max < lineH.pos {
 				continue
 			}
 
