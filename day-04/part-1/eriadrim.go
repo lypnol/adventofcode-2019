@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -31,47 +32,104 @@ func atoi(n uint8) int {
 	return int(n-48)
 }
 
-func calcHOver(memF, memG memo, b string) int {
+func calcFOver(memF memo, b string) int {
+	b = findFirstF(b)
 
-	if atoi(b[0]) == 9 {
-		return 1
-	}
-	if b[1] < b[0] {
-		return calcH(memF, memG, atoi(b[0]), 6)
-	}
-
-	res := calcH(memF, memG, atoi(b[0])+1, 6)
-	var wasEqual bool
-	i := 1
-	for i < 6 {
-		if b[i] < b[i-1] {
-			break
-		}
-		if atoi(b[i]) == 9 {
-			res++
-			break
-		}
-		a := atoi(b[i])
-		if i == 5 || b[i+1] >= b[i] {
-			a++
-		}
-		if wasEqual {
-			res += calcF(memF, a, 6-i)
-		} else {
-			res += calcH(memF, memG, a, 6-i)
-		}
-		if b[i] == b[i-1] {
-			wasEqual = true
-		}
-		i ++
-	}
-	if i == 6 {
-		res++
+	res := 1
+	for i := 0; i < 6; i++ {
+		res += calcF(memF, atoi(b[i])+1, 6-i)
 	}
 	return res
 }
 
+func findFirstF(b string) string {
+	i := 1
+	for i < 6 {
+		if b[i-1] >= b[i] {
+			break
+		}
+		i ++
+	}
+	if i == 6 {
+		return b
+	}
+	res := b[:i]
+	c := strconv.Itoa(atoi(b[i-1]))
+	for j := i; j < 6; j++ {
+		res += c
+	}
+	return res
+}
+
+func calcGOver(memG memo, b string) int {
+	b = findFirstG(b)
+	if b == "" {
+		return 0
+	}
+
+	res := 1
+	for i := 0; i < 6; i++ {
+		res += calcG(memG, atoi(b[i])+1, 6-i)
+	}
+
+	return res
+}
+
+func findFirstG(b string) string {
+	if atoi(b[0]) > 4 {
+		return ""
+	}
+	i := 1
+	for i < 6 {
+		if atoi(b[i]) - i > 4 {
+			break
+		}
+		if b[i-1] >= b[i] {
+			break
+		}
+		i ++
+	}
+	if i == 6 {
+		return b
+	}
+	res := ""
+	if atoi(b[i]) - i > 4 {
+		j := i - 1
+		for j >= 0 {
+			if atoi(b[j]) - j <= 3 {
+				i = j
+				break
+			}
+			j--
+		}
+		if j < 0 {
+			return ""
+		}
+		res = b[:i]
+		res += strconv.Itoa(atoi(b[i]) + 1)
+		i++
+	} else {
+		res = b[:i]
+	}
+	a := atoi(res[i-1])
+	for j := i; j < 6; j++ {
+		a++
+		if a > 9 {
+			return ""
+		}
+		res += strconv.Itoa(a)
+	}
+	return res
+}
+
+func calcHOver(memF, memG memo, b string) int {
+	return calcFOver(memF, b) - calcGOver(memG, b)
+}
+
 func calcF(mem memo, a, n int) int {
+	if a > 9 {
+		return 0
+	}
 	if mem[a][n] != 0 {
 		return mem[a][n]
 	}
@@ -84,6 +142,9 @@ func calcF(mem memo, a, n int) int {
 }
 
 func calcG(mem memo, a, n int) int {
+	if a > 9 {
+		return 0
+	}
 	if mem[a][n] != 0 {
 		return mem[a][n]
 	}
@@ -93,10 +154,6 @@ func calcG(mem memo, a, n int) int {
 	}
 	mem[a][n] = s
 	return s
-}
-
-func calcH(memF, memG memo, a, n int) int {
-	return calcF(memF, a, n) - calcG(memG, a, n)
 }
 
 func main() {
