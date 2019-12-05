@@ -116,7 +116,7 @@ func calcKOver(memG memo, b string) int {
 			if mult <= 0 {
 				continue
 			}
-			if threshold+k*111 < num {
+			if k > c3 && threshold+k*111 < num {
 				res += mult - 1
 			} else {
 				res += mult
