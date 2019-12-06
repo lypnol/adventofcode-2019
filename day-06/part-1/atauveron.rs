@@ -26,7 +26,7 @@ fn run(input: &str) -> usize {
             orbits.insert(center.to_string(), tmp);
         }
     }
-    // Traverse the graph
+    // Traverse the tree
     count_orbits("COM", 1, &orbits)
 }
 
