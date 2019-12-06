@@ -48,3 +48,7 @@ path = "./day-03/part-2/atauveron.rs"
 [[bin]]
 name = "day-05-part-1-atauveron"
 path = "./day-05/part-1/atauveron.rs"
+
+[[bin]]
+name = "day-05-part-2-atauveron"
+path = "./day-05/part-2/atauveron.rs"
