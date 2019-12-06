@@ -29,6 +29,9 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: '12.13.1'
+    - uses: julia-actions/setup-julia@v1
+      with:
+        version: 1.2.0
 
     # install rust if not cached TODO
     # - uses: actions/cache@v1
