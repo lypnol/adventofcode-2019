@@ -16,7 +16,7 @@ from tool.runners.python import SubmissionPy
 from tool.runners.ruby import SubmissionRb
 from tool.runners.rust import SubmissionRs
 from tool.runners.wrapper import SubmissionWrapper
-
+from tool.runners.julia import SubmissionJulia
 
 TOOL_BY_LANGUAGE = {
     "c": "gcc",
@@ -29,6 +29,7 @@ TOOL_BY_LANGUAGE = {
     "rb": "ruby",
     "rs": "cargo",
     "sh": "bash",
+    "jl": "julia",
 }
 LANGUAGES = list(TOOL_BY_LANGUAGE.keys())
 
@@ -71,3 +72,5 @@ def load_submission_runnable(path, language):
         return SubmissionRs(path)
     elif language == "sh":
         return SubmissionBash(path)
+    elif language == "jl":
+        return SubmissionJulia(path)
