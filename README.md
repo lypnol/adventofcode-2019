@@ -92,13 +92,13 @@ see `./aoc run -h` for full arguments description.
 
 ## Contribute
 
-For now we support `c`, `c++`, `java`, `javascript`, `go`, `python 3` (+ `cython`), `ruby`, `rust (stable)` and `bash` scripts.
+For now we support `c`, `c++`, `java`, `javascript`, `typescript` , `go`, `python 3` (+ `cython`), `ruby`, `rust (stable)` and `bash` scripts.
 
 You can use `./aoc create` tool to create a new empty submission:
 
 ```
 usage: aoc create [-h] [-a AUTHOR] [-d DAY] [-p PART]
-                  [-l {c,cpp,go,java,js,py,pyx,rb,rs,sh}]
+                  [-l {c,cpp,go,java,js,ts,py,pyx,rb,rs,sh}]
 
 Create a new submission
 
@@ -107,20 +107,20 @@ optional arguments:
                         submission author
   -d DAY, --day DAY     problem day
   -p PART, --part PART  problem part
-  -l {c,cpp,go,java,js,py,pyx,rb,rs,sh}, --language {c,cpp,go,java,js,py,pyx,rb,rs,sh}
+  -l {c,cpp,go,java,js,ts,py,pyx,rb,rs,sh}, --language {c,cpp,go,java,js,ts,py,pyx,rb,rs,sh}
                         submission language
 ```
 
 you can also use `./aoc config` to setup your local profile
 
 ```
-usage: aoc config [-h] username {c,cpp,go,java,js,py,pyx,rb,rs,sh}
+usage: aoc config [-h] username {c,cpp,go,java,js,ts,py,pyx,rb,rs,sh}
 
 Configures user parameters
 
 positional arguments:
   username              prefered username
-  {c,cpp,go,java,js,py,pyx,rb,rs,sh}
+  {c,cpp,go,java,js,ts,py,pyx,rb,rs,sh}
                         prefered programming language
 ```
 

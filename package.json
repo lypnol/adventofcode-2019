@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/lypnol/adventofcode-2019#readme",
   "dependencies": {
-    "lodash": ">=4.17.13"
+    "lodash": ">=4.17.13",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.3"
   }
 }

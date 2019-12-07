@@ -15,6 +15,7 @@ from tool.runners.cython_aoc import SubmissionPyx
 from tool.runners.python import SubmissionPy
 from tool.runners.ruby import SubmissionRb
 from tool.runners.rust import SubmissionRs
+from tool.runners.ts import SubmissionTs
 from tool.runners.wrapper import SubmissionWrapper
 from tool.runners.julia import SubmissionJulia
 
@@ -24,6 +25,7 @@ TOOL_BY_LANGUAGE = {
     "go": "go",
     "java": "java",
     "js": "node",
+    "ts": "./node_modules/.bin/ts-node",
     "py": "python",
     "pyx": "cython",
     "rb": "ruby",
@@ -74,3 +76,5 @@ def load_submission_runnable(path, language):
         return SubmissionBash(path)
     elif language == "jl":
         return SubmissionJulia(path)
+    elif language == "ts":
+        return SubmissionTs(path)
