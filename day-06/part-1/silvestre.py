@@ -1,5 +1,5 @@
 from tool.runners.python import SubmissionPy
-
+from functools import lru_cache
 
 class SilvestreSubmission(SubmissionPy):
 
@@ -7,25 +7,14 @@ class SilvestreSubmission(SubmissionPy):
         edges_str = s.split("\n")
         edges = [tuple(el.split(")")) for el in edges_str]
 
-        tree = self.build_tree(edges, "COM")
-        return self.count_depth(tree)
+        parents = {b: a for a, b in edges}
+        nodes = set(n for e in edges for n in e)
 
-    @staticmethod
-    def build_tree(edges, root_node):
-
-        def _build_tree(edges, node, current_depth):
-            children = [
-                _build_tree(edges, node_to, current_depth+1) 
-                for node_from, node_to in edges 
-                if node_from == node
-            ]
-            return {
-                "node": node,
-                "children": children,
-                "depth": current_depth
-            }
+        @lru_cache(maxsize=10_000)
+        def _get_depth(node):
+            if node == "COM":
+                return 0
+            else:
+                return 1 + _get_depth(parents[node])
         
-        return _build_tree(edges, root_node, 0)
-
-    def count_depth(self, tree):
-        return tree["depth"] + sum(self.count_depth(child) for child in tree["children"])
+        return sum(_get_depth(node) for node in nodes)
