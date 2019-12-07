@@ -41,6 +41,8 @@ end
 
 ##############################################################
 ### Another faster version
+### We don't store all the points, but only the
+### vertices (begin, end) and compute their intersections.
 ##############################################################
 
 function getVertices(line)
