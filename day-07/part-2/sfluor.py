@@ -1,5 +1,4 @@
 import itertools
-import itertools
 from tool.runners.python import SubmissionPy
 
 
@@ -56,21 +55,25 @@ class Program(object):
             (3, self.less_than, 3),
             (3, self.equals, 3),
         ]
+        INPUT = 3
         STOP = 99
 
         pc = 0
 
         while True:
-            opcode = self.code[pc]
+            instr = self.code[pc]
+            opcode, modes = instr % 100, instr // 100
 
             if opcode == STOP:
-                return self.out[-1]
+                return self.out
 
-            n_args, func, pos = opcodes[(opcode % 100) - 1]
+            if opcode == INPUT and not self.inp:
+                yield self.out
+                self.out = []
 
-            args = list(
-                itertools.islice(self.params(pc, opcode // 100, pos=pos), n_args)
-            )
+            n_args, func, pos = opcodes[opcode - 1]
+
+            args = list(itertools.islice(self.params(pc, modes, pos=pos), n_args))
 
             new_pc = func(args)
             if new_pc is not None:
@@ -79,10 +82,38 @@ class Program(object):
                 pc += n_args + 1
 
 
+def run_amplifiers(code, phases):
+    N = len(phases)
+
+    amplifiers = [Program(code.copy(), [phase]) for phase in phases]
+    outputs = [a.run() for a in amplifiers]
+
+    # First input
+    amplifiers[0].inp.append(0)
+
+    # We will loop over the amplifiers yielding whenever we are waiting for input
+    # And don't have any input yet to allow the next amplifier to run
+    for i in itertools.cycle(range(N)):
+        o, a = outputs[i], amplifiers[(i + 1) % N]
+        try:
+            outs = next(o)
+            a.inp.extend(outs)
+        except StopIteration as err:
+            # Last amplifier exited, let's return the value
+            if i == N - 1:
+                return err.value[-1]
+
+            a.inp.extend(err.value)
+
+
 class SfluorSubmission(SubmissionPy):
     def run(self, s):
         # :param s: input in string format
         # :return: solution flag
         # Your code goes here
         code = [int(i) for i in s.split(",")]
-        return Program(code, [5]).run()
+
+        return max(
+            run_amplifiers(code, phases)
+            for phases in itertools.permutations([5, 6, 7, 8, 9])
+        )
