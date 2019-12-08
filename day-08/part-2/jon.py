@@ -18,4 +18,4 @@ class JonSubmission(SubmissionPy):
                     return v
             return "2"
 
-        return "".join(pixel(k) for k in range(a))
+        return "\n".join("".join(pixel(w*x+y) for y in range(w)) for x in range(h))

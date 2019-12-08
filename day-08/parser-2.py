@@ -24,8 +24,10 @@ class D8P2Parser(Parser):
         self.unknown = set()
 
     def parse(self, s):
-        ss = s.strip()
+        ss = s.replace("\n", "").strip()
         if len(ss) != 25*6:
+            return s
+        if not all(c in ("0", "1") for c in ss):
             return s
 
         lines = [ss[25*i:25*(i+1)] for i in range(6)]
@@ -57,6 +59,6 @@ class D8P2Parser(Parser):
 
 
 def pretty_print_letter(s):
-    ss = s.replace("0", " ").replace("1", "#")
+    ss = s.replace("0", " ").replace("1", u"\u2588")
     for l in range(6):
         print(ss[5*l:5*(l+1)])
