@@ -33,7 +33,8 @@ class SfluorSubmission(SubmissionPy):
         # :return: solution flag
         # Your code goes here
         img = image(s)
-        pretty_print_img(img)
+        #pretty_print_img(img)
+        return ''.join(img)
 
         # letters = ocr(img)
         # for letter in letters:
