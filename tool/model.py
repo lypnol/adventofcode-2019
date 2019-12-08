@@ -33,7 +33,7 @@ class Problem(object):
         if is_cached:
             return parser
 
-        path = os.path.join(self.day_path(), "parser_%d.py" % self.part)
+        path = os.path.join(self.day_path(), "parser-%d.py" % self.part)
         if not os.path.exists(path):
             self._parser_cache = (True, None)
             return None
