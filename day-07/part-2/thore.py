@@ -104,7 +104,7 @@ def get_output(program, phase_setting_sequence):
     signal = 0
     i = 0
     it, max_it = 0, 1e6
-    while True and it < max_it:
+    while it < max_it:
         amplifier = amplifiers[i]
         amplifier.add_input(signal)
         amplifier.run()
