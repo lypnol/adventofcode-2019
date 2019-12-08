@@ -8,7 +8,7 @@ typedef unsigned int bool;
 #define false 0;
 
 int run(char* str) {
-    int array[10000]; // good enough for the demo
+    int array[1000];
     int last_idx = 0;
 
     char delim[] = ",";
