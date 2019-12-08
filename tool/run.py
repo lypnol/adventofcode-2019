@@ -63,6 +63,8 @@ def run(
 
         for submission in submissions:
             submission.runnable.cleanup()
+        if problem.parser():
+            problem.parser().cleanup()
 
         if restricted:
             print_restrict_results(problem, results_by_author)
@@ -83,6 +85,8 @@ def run_submission(problem, submission, input, previous=None):
     end = datetime.datetime.now()
     msecs = (end - start).total_seconds() * 1000
     answer, msecs = duration_from_answer(answer, msecs)
+    if problem.parser():
+        answer = problem.parser().parse(answer)
     if previous is not None and answer != previous.answer:
         raise DifferentAnswersException(
             """different answers day:{} part:{}

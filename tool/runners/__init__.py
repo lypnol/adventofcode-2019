@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 
-# stdlib
-import inspect
-from importlib.machinery import SourceFileLoader
-
 # project
 from tool.runners.bash import SubmissionBash
 from tool.runners.c import SubmissionC
@@ -18,6 +14,7 @@ from tool.runners.rust import SubmissionRs
 from tool.runners.ts import SubmissionTs
 from tool.runners.wrapper import SubmissionWrapper
 from tool.runners.julia import SubmissionJulia
+from tool.utils import load_subclass
 
 TOOL_BY_LANGUAGE = {
     "c": "gcc",
@@ -48,14 +45,7 @@ def load_submission_runnable(path, language):
     if language not in LANGUAGES:
         return None
     if language == "py":
-        submission_module = SourceFileLoader("submission_%s" % path, path).load_module()
-        classes = inspect.getmembers(submission_module, inspect.isclass)
-        for _, cls_submission in classes:
-            if issubclass(cls_submission, SubmissionPy) and cls_submission not in (
-                SubmissionPy,
-                SubmissionWrapper,
-            ):
-                return cls_submission()
+        return load_subclass(path, SubmissionPy, exclude=[SubmissionWrapper])
     elif language == "pyx":
         return SubmissionPyx(path)
     elif language == "c":

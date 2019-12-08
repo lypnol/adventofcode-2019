@@ -4,7 +4,9 @@
 import os.path
 
 # project
+from tool.parser import Parser
 from tool.runners import ext_by_language, load_submission_runnable
+from tool.utils import load_subclass
 
 
 class Problem(object):
@@ -15,6 +17,7 @@ class Problem(object):
     def __init__(self, day, part):
         self.day = day
         self.part = part
+        self._parser_cache = (False, None)
 
     def __repr__(self):
         return "Problem{day-%02d, part-%d}" % (self.day, self.part)
@@ -24,6 +27,20 @@ class Problem(object):
 
     def path(self):
         return os.path.join(self.day_path(), "part-%d" % self.part)
+
+    def parser(self):
+        is_cached, parser = self._parser_cache
+        if is_cached:
+            return parser
+
+        path = os.path.join(self.day_path(), "parser_%d.py" % self.part)
+        if not os.path.exists(path):
+            self._parser_cache = (True, None)
+            return None
+
+        parser = load_subclass(path, Parser)
+        self._parser_cache = (True, parser)
+        return parser
 
 
 class Submission(object):
