@@ -50,10 +50,11 @@ class D8P2Parser(Parser):
         print("Copy this code and replace the question marks with the letters below,")
         print("then add it to " + __file__)
         print()
-        for s in self.unknown:
+        unknown = list(self.unknown)
+        for s in unknown:
             print('"{}": "?",'.format(s))
         print()
-        for s in self.unknown:
+        for s in unknown:
             pretty_print_letter(s)
             print()
 
