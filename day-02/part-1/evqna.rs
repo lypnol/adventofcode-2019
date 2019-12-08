@@ -9,7 +9,7 @@ fn main() {
     println!("{}", output);
 }
 
-fn run_program(mem: &mut Vec<usize>) -> usize {
+fn run_program(mem: &mut Vec<usize>) {
     let mut ip = 0;
     loop {
         let op = mem[ip];
@@ -24,29 +24,18 @@ fn run_program(mem: &mut Vec<usize>) -> usize {
             mem[c] = mem[a] * mem[b];
         }
         ip += 4;
-    };
-
-    mem[0]
+    }
 }
 
-fn run(input: &str) -> i32 {
+fn run(input: &str) -> usize {
     let mut mem: Vec<usize> = input
         .split(',')
-        .map(|n| n.parse().unwrap_or(0))
+        .map(|n| n.parse().unwrap())
         .collect();
 
     mem[1] = 12;
     mem[2] = 02;
 
-    run_program(&mut mem) as i32
+    run_program(&mut mem);
+    mem[0]
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-
-//     #[test]
-//     fn run_test() {
-//         assert_eq!(run("1,1,1,4,99,5,6,0,99"), 30)
-//     }
-// }

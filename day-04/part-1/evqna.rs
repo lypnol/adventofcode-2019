@@ -19,7 +19,7 @@ fn get_digits(mut n: usize) -> Vec<usize> {
     digits
 }
 
-fn check_valid(&pwd: &usize) -> bool {
+fn check_valid(pwd: usize) -> bool {
     let digits = get_digits(pwd);
     let mut increasing_digits = true;
     let mut has_double = false;
@@ -39,12 +39,12 @@ fn check_valid(&pwd: &usize) -> bool {
 fn run(input: &str) -> usize {
     let nums: Vec<usize> = input
         .split('-')
-        .map(|s| s.parse().unwrap_or(0))
+        .map(|s| s.parse().unwrap())
         .collect();
 
     let (min, max) = (nums[0], nums[1]);
     let count = (min..max+1)
-        .filter(&check_valid)
+        .filter(|&n| check_valid(n))
         .count();
     count
 }

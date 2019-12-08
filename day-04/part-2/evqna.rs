@@ -50,13 +50,12 @@ fn check_valid(&pwd: &usize) -> bool {
 fn run(input: &str) -> usize {
     let nums: Vec<usize> = input
         .split('-')
-        .map(|s| s.parse().unwrap_or(0))
+        .map(|s| s.parse().unwrap())
         .collect();
 
     let (min, max) = (nums[0], nums[1]);
     (min..max+1)
         .filter(&check_valid)
-        .map(|n| println!("{}", n))
         .count()
 }
 
