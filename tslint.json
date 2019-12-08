@@ -10,7 +10,7 @@
     "forin": true,
     "indent": [
       true,
-      "tabs"
+      "spaces"
     ],
     "label-position": true,
     "max-line-length": [

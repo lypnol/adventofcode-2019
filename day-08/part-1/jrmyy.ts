@@ -1,4 +1,7 @@
+import * as _ from 'lodash';
+
 class Solution {
+
     // This is your puzzle input
     private readonly input: string;
 
@@ -7,8 +10,11 @@ class Solution {
     }
 
     run(): number {
-        // Your code goes here
-        return 0
+        const ints = this.input.split('').map(v => Number(v));
+        const layerSize = 25 * 6;
+        const layers = _.chunk(ints, layerSize).map(layer => _.countBy(layer));
+        const rightLayer = layers.sort((a, b) => a['0'] - b['0'])[0];
+        return rightLayer['1'] * rightLayer['2'];
     }
 
     main() {
