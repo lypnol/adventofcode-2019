@@ -19,6 +19,10 @@
   "dependencies": {
     "lodash": ">=4.17.13",
     "ts-node": "^8.5.4",
+    "tslint": "^5.20.1",
     "typescript": "^3.7.3"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.149"
   }
 }
