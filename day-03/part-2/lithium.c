@@ -3,13 +3,45 @@
 #include <stdlib.h>
 #include <string.h>
 
-int coords(int x, int y){
-    return (40000 * (x + 20000)) + (y + 20000);
+typedef unsigned short bool;
+#define true 1
+#define false 0
+
+struct segment {
+    int start;
+    int end;
+    int offset;
+    int initial_distance;
+    bool inv;
+};
+typedef struct segment segment;
+
+int get_intersect_distance(segment a, segment b){
+    // printf("Segment %d %d %d (%d)(%d) Segment %d %d %d (%d)(%d)\n", a.offset, a.start, a.end, a.initial_distance, a.inv, b.offset, b.start, b.end, b.initial_distance, b.inv);
+    // printf("%d %d\n", a.initial_distance, b.initial_distance);
+    return a.initial_distance + b.initial_distance +
+        (a.inv?(a.end - b.offset):(b.offset - a.start)) +
+        (b.inv?(b.end - a.offset):(a.offset - b.start));
 }
 
 int run(char* str){
-    int *space;
-    space = (int *)malloc(sizeof(int)*40000*40000);
+    segment *hor_segments_1;
+    segment *ver_segments_1;
+
+    hor_segments_1 = (segment *)malloc(sizeof(segment)*200);
+    ver_segments_1 = (segment *)malloc(sizeof(segment)*200);
+
+    segment *hor_segments_2;
+    segment *ver_segments_2;
+
+    hor_segments_2 = (segment *)malloc(sizeof(segment)*200);
+    ver_segments_2 = (segment *)malloc(sizeof(segment)*200);
+
+    int hor_index_1 = 0;
+    int ver_index_1 = 0;
+
+    int hor_index_2 = 0;
+    int ver_index_2 = 0;
 
     int last_x = 0;
     int last_y = 0;
@@ -22,89 +54,154 @@ int run(char* str){
 
     char *token_line_1 = strtok(line1, token_separator);
 
-    int modx = 0;
-    int mody = 0;
-
     int best = __INT_MAX__;
+    segment tmp;
+    int cur_distance = 0;
 
-    int cur_distance = 1;
     while (token_line_1 != NULL) {
         int value = atoi(token_line_1 + 1);
         switch(token_line_1[0]){
             case 'R':{
-                modx = 1;
-                mody = 0;
+                tmp.start = last_x;
+                last_x += value;
+                tmp.end = last_x;
+                tmp.offset = last_y;
+                tmp.initial_distance = cur_distance;
+                tmp.inv = false;
+                hor_segments_1[hor_index_1++] = tmp;
                 break;
             }
             case 'L':{
-                modx = -1;
-                mody = 0;
+                tmp.end = last_x;
+                last_x -= value;
+                tmp.start = last_x;
+                tmp.offset = last_y;
+                tmp.initial_distance = cur_distance;
+                tmp.inv = true;
+                hor_segments_1[hor_index_1++] = tmp;
                 break;
             }
             case 'U':{
-                modx = 0;
-                mody = 1;
+                tmp.start = last_y;
+                last_y += value;
+                tmp.end = last_y;
+                tmp.offset = last_x;
+                tmp.initial_distance = cur_distance;
+                tmp.inv = false;
+                ver_segments_1[ver_index_1++] = tmp;
                 break;
             }
             case 'D':{
-                modx = 0;
-                mody = -1;
+                tmp.end = last_y;
+                last_y -= value;
+                tmp.start = last_y;
+                tmp.offset = last_x;
+                tmp.initial_distance = cur_distance;
+                tmp.inv = true;
+                ver_segments_1[ver_index_1++] = tmp;
                 break;
             }
         }
-        for(int i = 0; i < value; i++){
-            last_x += modx;
-            last_y += mody;
-            //printf("(%d:%d)\n", last_x, last_y);
-            space[coords(last_x, last_y)] = cur_distance++;
-        }
+        cur_distance += value;
         token_line_1 = strtok(NULL, token_separator);
     }
     last_x = 0;
     last_y = 0;
     cur_distance = 0;
+
     char *token_line_2 = strtok(line2, token_separator);
+
     while (token_line_2 != NULL) {
         int value = atoi(token_line_2 + 1);
         switch(token_line_2[0]){
             case 'R':{
-                modx = 1;
-                mody = 0;
+                tmp.start = last_x;
+                last_x += value;
+                tmp.end = last_x;
+                tmp.offset = last_y;
+                tmp.initial_distance = cur_distance;
+                tmp.inv = false;
+                hor_segments_2[hor_index_2++] = tmp;
                 break;
             }
             case 'L':{
-                modx = -1;
-                mody = 0;
+                tmp.end = last_x;
+                last_x -= value;
+                tmp.start = last_x;
+                tmp.offset = last_y;
+                tmp.initial_distance = cur_distance;
+                tmp.inv = true;
+                hor_segments_2[hor_index_2++] = tmp;
                 break;
             }
             case 'U':{
-                modx = 0;
-                mody = 1;
+                tmp.start = last_y;
+                last_y += value;
+                tmp.end = last_y;
+                tmp.offset = last_x;
+                tmp.initial_distance = cur_distance;
+                tmp.inv = false;
+                ver_segments_2[ver_index_2++] = tmp;
                 break;
             }
             case 'D':{
-                modx = 0;
-                mody = -1;
+                tmp.end = last_y;
+                last_y -= value;
+                tmp.start = last_y;
+                tmp.offset = last_x;
+                tmp.initial_distance = cur_distance;
+                tmp.inv = true;
+                ver_segments_2[ver_index_2++] = tmp;
                 break;
             }
         }
-        for(int i = 0; i < value; i++){
-            cur_distance++;
-            last_x += modx;
-            last_y += mody;
-            int l1_distance = space[coords(last_x, last_y)];
-            if (l1_distance != 0){
-                int distance = l1_distance + cur_distance;
-                if (distance < best){
-                    best = distance;
-                }
-            }
-            //printf("(%d:%d)\n", last_x-5000,last_y-5000);
-        }
+        cur_distance += value;
         token_line_2 = strtok(NULL, token_separator);
     }
 
-    //free(space);
+    int distance;
+    for (int hor_1 = 0; hor_1 < hor_index_1; hor_1++){
+        for (int ver_2 = 0; ver_2 < ver_index_2; ver_2++){
+            if 
+            (
+                hor_segments_1[hor_1].start <= ver_segments_2[ver_2].offset &&
+                hor_segments_1[hor_1].end > ver_segments_2[ver_2].offset &&
+                ver_segments_2[ver_2].start <= hor_segments_1[hor_1].offset &&
+                ver_segments_2[ver_2].end > hor_segments_1[hor_1].offset
+            )
+            {
+                // printf("Line 1 segment %d hor and line 2 segment %d ver\n", hor_1, ver_2);
+                distance = get_intersect_distance(hor_segments_1[hor_1], ver_segments_2[ver_2]);
+                if (distance < best && distance != 0)
+                {
+                    best = distance;
+                }
+            }
+        }
+    }
+    for (int hor_2 = 0; hor_2 < hor_index_2; hor_2++){
+        for (int ver_1 = 0; ver_1 < ver_index_1; ver_1++){
+            if 
+            (
+                hor_segments_2[hor_2].start <= ver_segments_1[ver_1].offset &&
+                hor_segments_2[hor_2].end >= ver_segments_1[ver_1].offset &&
+                ver_segments_1[ver_1].start <= hor_segments_2[hor_2].offset &&
+                ver_segments_1[ver_1].end >= hor_segments_2[hor_2].offset
+            )
+            {
+                // printf("Line 1 segment %d ver and line 2 segment %d hor\n", ver_1, hor_2);
+                distance = get_intersect_distance(ver_segments_1[ver_1], hor_segments_2[hor_2]);
+                if (distance < best && distance != 0)
+                {
+                    best = distance;
+                }
+            }
+        }
+    }
+    free(hor_segments_1);
+    free(hor_segments_2);
+    free(ver_segments_1);
+    free(ver_segments_2);
     return best;
 }
 
