@@ -12,6 +12,8 @@ from tool.config import CONFIG
 from tool.model import Result, Submission
 from tool.utils import BColor
 
+_MAX_OUTPUT_LEN = 20
+
 
 class DifferentAnswersException(Exception):
     pass
@@ -195,7 +197,7 @@ def print_aggregated_results(problem, results_by_author):
                 res_by_language[result_language] = res
             # The author is on his own input, get his answer (split to allow author.x.lang on input author.txt)
             if author.split(".")[0] == result.input.author:
-                res_by_language[result_language].answer = result.answer
+                res_by_language[result_language].answer = restrict_answer_length(result.answer, _MAX_OUTPUT_LEN)
                 res_by_language[result_language].input = result.input
                 res_by_language[result_language].submission = result.submission
             # Add up the duration of this result
@@ -234,3 +236,7 @@ def duration_from_answer(answer, msec):
     except ValueError:
         pass
     return answer, msec
+
+
+def restrict_answer_length(answer, max_len=20):
+    return answer if len(answer) < max_len else answer[:max_len - 3] + "..."
