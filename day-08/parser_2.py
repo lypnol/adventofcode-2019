@@ -45,7 +45,9 @@ class D8P2Parser(Parser):
         if len(self.unknown) == 0:
             return
         print("Some letters are unknown to the parser, please add them.")
-        print("Copy this code and replace the question marks with the letters below:")
+        print("Copy this code and replace the question marks with the letters below,")
+        print("then add it to " + __file__)
+        print()
         for s in self.unknown:
             print('"{}": "?",'.format(s))
         print()
