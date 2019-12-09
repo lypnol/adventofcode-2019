@@ -104,4 +104,4 @@ class SfluorSubmission(SubmissionPy):
         # :return: solution flag
         # Your code goes here
         code = [int(i) for i in s.split(",")]
-        return Program(code, [1]).run()
+        return Program(code, [1]).run()[0]
