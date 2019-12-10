@@ -77,7 +77,6 @@ class SfluorSubmission(SubmissionPy):
         # :return: solution flag
         # Your code goes here
         asteroids = list(parse_asteroids(s))
-        print(asteroids)
 
         ins = ((a, *intersections(a, asteroids)) for a in asteroids)
 
