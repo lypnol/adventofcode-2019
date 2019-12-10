@@ -53,12 +53,9 @@ def best_monitoring_location(asteroids):
         sorted_visibilities = sorted(zip(angles[i], distances[i], asteroids))
 
         n_visible = 0
-        curr_angle = -1
         for j in range(1, n_asteroids):
-            angle_j = sorted_visibilities[j][0]
-            if not isclose(angle_j, curr_angle):
+            if not isclose(sorted_visibilities[j][0], sorted_visibilities[j - 1][0]):
                 n_visible += 1
-                curr_angle = angle_j
 
         if n_visible > best_n_visible:
             best_n_visible = n_visible

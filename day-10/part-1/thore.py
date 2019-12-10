@@ -1,4 +1,4 @@
-from math import sqrt, isclose, pi, atan2
+from math import atan2, isclose, pi
 
 from tool.runners.python import SubmissionPy
 
@@ -21,7 +21,6 @@ def parse_asteroids(map_string, asteroid_char="#"):
 
 def best_monitoring_location(asteroids):
     n_asteroids = len(asteroids)
-    line_of_sights = [[0 for j in range(n_asteroids)] for i in range(n_asteroids)]
     angles = [[-1 for j in range(n_asteroids)] for i in range(n_asteroids)]
 
     for i in range(n_asteroids):
@@ -43,17 +42,10 @@ def best_monitoring_location(asteroids):
 
 
 def angle(a, b):
-    """ Compute oriented angle (in degrees) between y axis and AB """
-    ab_vec = (b[0] - a[0], b[1] - a[1])
-    res = atan2(*ab_vec) * 180 / pi
-    return res if res >= 0 else res + 360
-
-
-def is_between(src, target, candidate, eps=1e-8):
-    """ Check if candidate asteroid is between src and target """
-    return isclose(dist(src, candidate) + dist(candidate, target), dist(src, target))
-
-
-def dist(a, b):
-    """ Compute euclidean distance between two points """
-    return sqrt(sum([(xa - xb) ** 2 for xa, xb in zip(a, b)]))
+    """ Compute oriented angle (in degrees) between "up" axis and AB.
+        a and b coordinates are from a top-left origin """
+    ab_vec = (b[1] - a[1], a[0] - b[0])  # vector with bottom-right origin
+    res = atan2(*ab_vec) * 180 / pi  # angle with yaxis in [-180, 180]
+    if res < 0:  # from [-180, 180] to [0, 360]
+        res += 360
+    return res
