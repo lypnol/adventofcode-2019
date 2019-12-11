@@ -41,7 +41,13 @@ class RemiSubmission(SubmissionPy):
         miny = min(panel[1] for panel in panels.keys())
         maxy = max(panel[1] for panel in panels.keys())
 
-        return panels
+        res = []
+        for y in range(miny, maxy + 1):
+            for x in range(minx + 1, maxx - 1):
+                color = panels.get((x, y), 0)
+                res.append(str(color))
+
+        return "".join(res)
 
 
 class IntCode:
