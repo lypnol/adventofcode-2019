@@ -68,4 +68,4 @@ class D11P2Parser(Parser):
 def pretty_print_letter(s):
     ss = s.replace("0", " ").replace("1", u"\u2588")
     for l in range(HEIGHT):
-        print(ss[N*l:N*(l+1)])
+        print(ss[LETTER_WIDTH*l:LETTER_WIDTH*(l+1)])
