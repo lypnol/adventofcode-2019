@@ -24,13 +24,13 @@ class SilvestreSubmission(SubmissionPy):
         pc = 0
         relative_base = 0
         
-        grid = defaultdict(int)
+        grid = {}
         current_pos = (0,0)
         directions = ["up", "right", "down", "left"]
         current_dir_idx = 0
     
         while True:
-            color = grid[current_pos]
+            color = grid[current_pos] if current_pos in grid else 0
             color, pc, relative_base, is_finished = self.compute_output(code, [color], mem, pc, relative_base)
             if is_finished:
                 break
