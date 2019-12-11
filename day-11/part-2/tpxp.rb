@@ -63,7 +63,7 @@ def run(s)
     map[0][0] = 1
     robot = StatefulRunner.new(prgm, [])
     x, y = [0,0]
-    dx, dy = [0,1]
+    dx, dy = [0,-1]
     catch :haltAndCatchFire do
         loop do
             o = robot.run([(map[x][y] or 0)])
@@ -90,10 +90,11 @@ def run(s)
     end
     (y1..y2).each do |y|
         (x1..x2).each do |x|
-            print (map[x][y] or 0)
+            print (map[x][y] or " ")
         end
         puts
     end
+    return
 end
 
 
