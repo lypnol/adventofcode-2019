@@ -1,49 +1,44 @@
 from tool.runners.python import SubmissionPy
 
 def get_optcode_param(n):
-    L = list(str(n))
-    c = (L[-1], L[:-2][::-1])
-    while len(c[1]) < 3:
-        c[1].append('0')
-    return c
+    return (n%100, [(n//100)%10, (n//1000)%10, n//10000])
 
-class FrenkiSubmission(SubmissionPy):
-    def __init__(self):
-        self.l = []
+class IntCode(object):
+    def __init__(self, l):
+        self.l = l
 
     def choose(self, v, m):
-        if m == '0':
+        if m == 0:
             return self.l[v]
         return v
 
-    def run(self, s):
-        self.l = list(map(int, s.split(',')))
+    def add(self, args):
+        self.l[args[2]] =  self.l[args[1]] + self.l[args[0]]
+
+    def mul(self, args):
+        self.l[args[2]] =  self.l[args[1]] * self.l[args[0]]
+    
+    def ins(self, args):
+        self.l[args[0]] = 1
+
+    def ret(self, args):
+        return self.l[args[0]]
+
+    def run(self):
         i = 0
+        opcodes = [0,(self.add, 3), (self.mul, 3), (self.ins,1), (self.ret, 1)]
         while self.l[i] != 99:
-            c = get_optcode_param(self.l[i])
-            if c[0] == '1':
-                index1 = self.choose(i+1, c[1][0])
-                index2 = self.choose(i+2, c[1][1])
-                index3 = self.choose(i+3, c[1][2])
-                self.l[index3] = self.l[index1] + self.l[index2]
-                i+= 4
-            elif c[0] == '2':
-                index1 = self.choose(i+1, c[1][0])
-                index2 = self.choose(i+2, c[1][1])
-                index3 = self.choose(i+3, c[1][2])
-                self.l[index3] = self.l[index1] * self.l[index2]
-                i += 4
-            elif c[0] == '3':
-                index1 = self.l[i+1]
-                self.l[index1] = 1
-                i+= 2
-            elif c[0] == '4':
-                index1 = self.choose(i+1, c[1][0])
-                if self.l[index1] != 0 :
-                    return(self.l[index1])
-                i+= 2
-
-                
+            opcode, params = get_optcode_param(self.l[i])
+            f,r = opcodes[opcode]
+            l = [self.choose(i+k+1,params[k]) for k in range(r)]
+            res = f(l)
+            i += r+1
+            if res:
+                return res
 
 
+class FrenkiSubmission(SubmissionPy):
+    def run(self, s):
+        ic = IntCode([int(i) for i in s.split(',')])
+        return ic.run()
         
