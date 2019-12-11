@@ -1,44 +1,9 @@
 from tool.runners.python import SubmissionPy
-from collections import Counter, defaultdict
+from collections import defaultdict
 
 
-class Asteroid:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def __eq__(self, other):
-        if isinstance(other, Asteroid):
-            return self.x == other.x and self.y == other.y
-        return False
-
-    def __hash__(self):
-        return hash((self.x, self.y))
-
-    def __repr__(self):
-        return f"({self.x}, {self.y})"
-
-
-def compute_slope(origin: Asteroid, ast: Asteroid):
-    if ast.x == origin.x:
-        return float("inf")
-    elif ast.y == origin.y:
-        return 0
-    else:
-        return (ast.y - origin.y) / (ast.x - origin.x)
-
-
-def compute_direction(origin: Asteroid, ast: Asteroid):
-    if ast.x == origin.x:
-        return (ast.y - origin.y) / abs(ast.y - origin.y)
-    elif ast.y == origin.y:
-        return (ast.x - origin.x) / abs(ast.x - origin.x)
-    else:
-        return (ast.x - origin.x) / abs(ast.x - origin.x)
-
-
-def distance(origin: Asteroid, ast: Asteroid):
-    return (origin.y - ast.y) ** 2 + (origin.x - ast.x) ** 2
+def distance(origin, ast):
+    return (origin[1] - ast[1]) ** 2 + (origin[0] - ast[0]) ** 2
 
 
 class YouyounSubmission(SubmissionPy):
@@ -49,9 +14,8 @@ class YouyounSubmission(SubmissionPy):
         for j, line in enumerate(s.splitlines()):
             for i in range(len(line)):
                 if line[i] == "#":
-                    coords.add(Asteroid(i, j))
+                    coords.add((i, j))
 
-        monitor = None
         monitor_slopes_ast_map = {}
         max_monitored = 0
         for mon in coords:
@@ -59,12 +23,15 @@ class YouyounSubmission(SubmissionPy):
             for ast in coords:
                 if mon == ast:
                     continue
-                slope = compute_slope(mon, ast)
-                dir = compute_direction(mon, ast)
+                if mon[0] == ast[0]:
+                    slope = 1000000
+                    dir = (ast[1] - mon[1]) / abs(ast[1] - mon[1])
+                else:
+                    slope = (ast[1] - mon[1]) / (ast[0] - mon[0])
+                    dir = (ast[0] - mon[0]) / abs(ast[0] - mon[0])
                 slope_asts_map[(slope, dir)].add(ast)
             n_monitored = len(slope_asts_map)
             if n_monitored > max_monitored:
-                monitor = mon
                 max_monitored = n_monitored
                 monitor_slopes_ast_map = {}
                 for s in slope_asts_map:
@@ -86,7 +53,7 @@ class YouyounSubmission(SubmissionPy):
                 processed_slopes.add(sorted_slopes[i])
             remaining_asts -= 1
             if remaining_asts == max_monitored - 200:
-                return destroyed.x * 100 + destroyed.y
+                return destroyed[0] * 100 + destroyed[1]
             if i >= len(sorted_slopes):
                 i = 0
             else:
