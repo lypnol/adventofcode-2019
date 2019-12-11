@@ -14,13 +14,12 @@ class Program:
         self.opcode = 0
         self.input_value = 1
         self.outputs = []
-        self.next = 0
         self.end = 0
         self.pointer_ref = 0
 
     def set_input(self, inp):
         self.input_value = inp
-        self.next = 0
+        self.outputs = []
 
     def move_pointer(self):
         if self.opcode in [1, 2, 7, 8]:
@@ -52,7 +51,6 @@ class Program:
             self.intcode[self.param(self.pos + 1, param_modes[0])] = self.input_value
         elif self.opcode == 4:
             self.outputs.append(self.intcode[self.param(self.pos + 1, param_modes[0])])
-            self.next += 1
         elif self.opcode == 5:
             if self.intcode[self.param(self.pos + 1, param_modes[0])] != 0:
                 self.pos = self.intcode[self.param(self.pos + 2, param_modes[1])]
@@ -73,7 +71,6 @@ class Program:
             self.pointer_ref += self.intcode[self.param(self.pos + 1, param_modes[0])]
         elif self.opcode == 99:
             self.end = 1
-            self.next = 2
         else:
             raise ValueError("Invalid op code")
         self.move_pointer()
@@ -140,11 +137,13 @@ class YouyounSubmission(SubmissionPy):
         instructions = [int(x) for x in s.split(",")]
         prog = Program(instructions)
         prog.set_input(1)
-        while prog.end == 0:
-            while prog.next < 2:
+        while True:
+            while len(prog.outputs) < 2 and prog.end == 0:
                 prog.run_instruction()
+            if prog.end == 1:
+                break
             pannels[robot.get_position()] = prog.outputs[-2]
             robot.move(prog.outputs[-1])
             prog.set_input(pannels[robot.get_position()])
-        img = [str(pannels[(i,j)]) for j in range(6) for i in range(40)]
+        img = [str(pannels[(i, j)]) for j in range(6) for i in range(40)]
         return "".join(img)
