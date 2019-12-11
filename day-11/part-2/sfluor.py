@@ -154,13 +154,10 @@ class SfluorSubmission(SubmissionPy):
 
         HEIGHT, WIDTH = 6, 40
 
+        out = []
+
         for y in range(HEIGHT - 1, -1, -1):
             for x in range(WIDTH):
-                if (x, y) in points:
-                    print("#", end="")
-                else:
-                    print(" ", end="")
+                out.append(str(int((x, y) in points)))
 
-            print("")
-
-        return len(painted)
+        return ''.join(out)
