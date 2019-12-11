@@ -130,6 +130,8 @@ def get_submissions(
         for filename in files:
             submission, ext = os.path.splitext(filename)
             author = os.path.basename(submission)
+            if filename.startswith("__"):
+                continue
             if (ext not in extensions) or filename.endswith("_test.go"):
                 continue
             if ignored_authors and author in ignored_authors:
