@@ -5,7 +5,12 @@ import math
 
 
 def parse_grid(s):
-    return [[char == "#" for char in line.strip()] for line in s.splitlines()]
+    return [
+        (x, y)
+        for x, line in enumerate(s.splitlines())
+        for y, char in enumerate(line.strip())
+        if char == "#"
+    ]
 
 
 def direction(x1, y1, x2, y2):
@@ -17,21 +22,17 @@ def direction(x1, y1, x2, y2):
 
 def seeable(grid, x1, y1):
     directions = set()
-    for x2 in range(len(grid)):
-        for y2 in range(len(grid[0])):
-            if (x1, y1) != (x2, y2) and grid[x2][y2]:
-                directions.add(direction(x1, y1, x2, y2))
+    for (x2, y2) in grid:
+        if (x1, y1) != (x2, y2):
+            directions.add(direction(x1, y1, x2, y2))
     return len(directions)
 
 
 def solve_part1(grid):
     return max(
-        ((x, y)
-        for x in range(len(grid))
-        for y in range(len(grid[0]))
-        if grid[x][y]),
-        key = lambda pos: seeable(grid, pos[0], pos[1])
+        ((x, y) for (x, y) in grid), key=lambda pos: seeable(grid, pos[0], pos[1]),
     )
+
 
 class FranciscoSubmission(SubmissionPy):
     def run(self, s):
