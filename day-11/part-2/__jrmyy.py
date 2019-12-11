@@ -40,17 +40,17 @@ class JrmyySubmission(SubmissionPy):
         max_x = max([x[0] for x in normalized_painted_panels])
         max_y = max([x[1] for x in normalized_painted_panels])
 
-        registration_matrix = [[] for _ in range(max_y + 1)]
+        out = ""
 
-        for j in range(max_y + 1):
-            for i in range(max_x + 1):
+        for j in range(5, -1, -1):
+            for i in range(40):
                 if normalized_painted_panels.get((i, j), []) == [1]:
-                    registration_matrix[j].append("1")
+                    out += '1'
                 else:
-                    registration_matrix[j].append(" ")
+                    out += '0'
 
-        print("\n".join(reversed(["".join(x) for x in registration_matrix])))
-        return None
+        print(out)
+        return out
 
     def _paint_panel(self,
                      current_position: Tuple[int, int],
