@@ -40,7 +40,7 @@ def how_many_visible_from(x, y, map)
                 next if nx < 0 or ny < 0
                 next if map[nx] == nil or map[nx][ny] == nil
                 next if map[nx][ny] != '#'
-                # Make it irreductible
+                # Make it irreducible
                 dx, dy = reduce(gdx, gdy)
                 next if blocked[dx][dy]
                 blocked[dx][dy] = true

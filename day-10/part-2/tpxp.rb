@@ -28,7 +28,7 @@ class Day10Sol
                     next if nx < 0 or ny < 0
                     next if map[nx] == nil or map[nx][ny] == nil
                     next if map[nx][ny] != '#'
-                    # Make it irreductible
+                    # Make it irreducible
                     # Careful, if you set gdx here it will be used for the rest!
                     dx, dy = reduce(gdx, gdy)
                     next if blocked[dx][dy]
