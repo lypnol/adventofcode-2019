@@ -5,6 +5,7 @@ from tool.runners.bash import SubmissionBash
 from tool.runners.c import SubmissionC
 from tool.runners.cpp import SubmissionCpp
 from tool.runners.go import SubmissionGo
+from tool.runners.intcode import SubmissionIntcode
 from tool.runners.java import SubmissionJava
 from tool.runners.js import SubmissionJs
 from tool.runners.cython_aoc import SubmissionPyx
@@ -20,6 +21,7 @@ TOOL_BY_LANGUAGE = {
     "c": "gcc",
     "cpp": "g++",
     "go": "go",
+    "intcode": "python",
     "java": "java",
     "js": "node",
     "ts": "./node_modules/.bin/ts-node",
@@ -54,6 +56,8 @@ def load_submission_runnable(path, language):
         return SubmissionCpp(path)
     elif language == "go":
         return SubmissionGo(path)
+    elif language == "intcode":
+        return SubmissionIntcode(path)
     elif language == "java":
         return SubmissionJava(path)
     elif language == "js":

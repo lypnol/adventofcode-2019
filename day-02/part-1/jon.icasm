@@ -1,0 +1,80 @@
+
+# Read input
+
+in &pLength
+add &pLength 0 &rLen  # copy pLength to rLen
+readLoop:add @p &rPos &inAddr  # set inAddr
+in inAddr:&0
+add &rPos 1 &rPos
+add &rLen -1 &rLen
+jmpnz &rLen @readLoop
+
+
+# Set initial values
+
+add 12 0 &p1
+add 2 0 &p2
+
+
+# Run program
+
+runLoop:add @p &pc &opAddr
+add opAddr:&0 0 &op
+
+add &op -99 &isStop
+jmpz isStop:0 @implStop
+
+add &opAddr 1 &param1Addr
+add &opAddr 2 &param2Addr
+add &opAddr 3 &param3Addr
+add param1Addr:&0 0 &param1
+add param2Addr:&0 0 &param2
+add param3Addr:&0 0 &param3
+
+add @p &param1 &val1Addr
+add @p &param2 &val2Addr
+add val1Addr:&0 0 &val1
+add val2Addr:&0 0 &val2
+
+add &op -1 &isAdd
+jmpz isAdd:0 @implAdd
+add &op -2 &isMult
+jmpz isMult:0 @implMult
+
+stop
+
+implAdd:add &val1 &val2 &opResult
+jmpz 0 @writeResult
+
+implMult:mult &val1 &val2 &opResult
+jmpz 0 @writeResult
+
+writeResult:add &pc 4 &pc
+add @p &param3 &val3Addr
+add &opResult 0 val3Addr:&0
+jmpz 0 @runLoop
+
+implStop:out &p
+stop
+
+
+# Variables
+
+pLength:0
+
+rLen:0
+rPos:0
+
+pc:0
+
+op:0
+param1:0
+param2:0
+param3:0
+val1:0
+val2:0
+opResult:0
+
+p:0
+p1:0
+p2:0
