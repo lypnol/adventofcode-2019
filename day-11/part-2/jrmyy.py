@@ -5,7 +5,7 @@ from tool.runners.python import SubmissionPy
 
 class JrmyySubmission(SubmissionPy):
 
-    def run(self, s: str) -> None:
+    def run(self, s: str) -> str:
         # :param s: input in string format
         # :return: solution flag
         ints = [int(x) for x in s.split(",")] + [0] * 10000
@@ -40,17 +40,17 @@ class JrmyySubmission(SubmissionPy):
         max_x = max([x[0] for x in normalized_painted_panels])
         max_y = max([x[1] for x in normalized_painted_panels])
 
-        out = ""
+        registration_matrix = [[] for _ in range(max_y + 1)]
 
-        for j in range(5, -1, -1):
-            for i in range(40):
+        for j in range(max_y + 1):
+            for i in range(1, max_x - 1):
                 if normalized_painted_panels.get((i, j), []) == [1]:
-                    out += '1'
+                    registration_matrix[j].append("1")
                 else:
-                    out += '0'
+                    registration_matrix[j].append("0")
 
-        print(out)
-        return out
+        s = "\n".join(reversed(["".join(x) for x in registration_matrix])) + "\n"
+        return s
 
     def _paint_panel(self,
                      current_position: Tuple[int, int],
