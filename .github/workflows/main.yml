@@ -13,12 +13,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    
+
     # setup supported languages
 
     - uses: actions/setup-python@v1
       with:
-        python-version: '3.7'
+        python-version: 'pypy3'
     - uses: actions/setup-ruby@v1
     - uses: actions/setup-go@v1
       with:
