@@ -80,7 +80,9 @@ def run(s)
             y += dy
         end
     end
-    x1, x2 = map.keys.minmax
+    x1, x2 = map.keys.filter{|k|
+      map[k].values.min.to_i > 0
+    }.minmax
     y1, y2 = [0, 0]
     map.each_value do |val|
         y3, y4 = val.keys.minmax
@@ -88,13 +90,16 @@ def run(s)
         y1 = y3 if y3 < y1
         y2 = y4 if y4 > y2
     end
+
+    res = ""
     (y1..y2).each do |y|
         (x1..x2).each do |x|
-            print (map[x][y] or " ")
+          res += (map[x][y] or 0).to_s
         end
-        puts
+        # Just so that the output is accepted by the parser
+        res += "0"
     end
-    return
+    res
 end
 
 
