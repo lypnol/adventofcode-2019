@@ -1,3 +1,5 @@
+from math import gcd
+from functools import reduce
 import itertools
 import numpy as np
 from tool.runners.python import SubmissionPy
@@ -26,6 +28,8 @@ class Moon:
     def __repr__(self):
         return f"Moon(pos={self.pos}, velocity={self.v})"
 
+def lcm(a, b):
+    return a * b // gcd(a, b)
 
 def parse_moons(s):
     for line in s.splitlines():
@@ -73,6 +77,4 @@ class SfluorSubmission(SubmissionPy):
             counts += 1
             step(moons)
 
-        print(loop_indices)
-
-        return counts
+        return reduce(lcm, loop_indices)
