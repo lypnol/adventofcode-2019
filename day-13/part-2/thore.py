@@ -13,59 +13,68 @@ class ThoreSubmission(SubmissionPy):
     def run(self, s):
         # :param s: input in string format
         # :return: solution flag
-
         program = [int(c) for c in s.split(",")]
-
-        blocks = set()
-        walls = set()
-        paddle_pos = None
-        ball_pos = None
-        score = None
-
         vm = VM(program)
         vm.memory[0] = 2  # play for free
 
-        it = 0
-        while it == 0 or not vm.is_halted:
-            vm.run()
+        return play(vm)
+
+
+def play(vm, verbose=False):
+    screen = defaultdict(int)
+    ball_pos, paddle_pos = None, None
+    score = 0
+    it = 0
+    while not vm.is_halted:
+        vm.run()
+
+        # process outputs
+        while len(vm.stdout) >= 3:
             output = vm.get_outputs(3)
-            while output is not None:
-                if tuple(output[:2]) == (-1, 0):
-                    score = output[2]
-                elif output[2] == EMPTY_ID:
-                    pos = tuple(output[:2])
-                    if pos in blocks:
-                        blocks.remove(pos)
-                elif output[2] == WALL_ID:
-                    walls.add(tuple(output[:2]))
-                elif output[2] == BLOCK_ID:
-                    blocks.add(tuple(output[:2]))
-                elif output[2] == PADDLE_ID:
-                    paddle_pos = tuple(output[:2])
-                elif output[2] == BALL_ID:
-                    ball_pos = tuple(output[:2])
-                output = vm.get_outputs(3)
-            joystick_dir = sign(ball_pos[0] - paddle_pos[0])
-            vm.add_input(joystick_dir)
-            it += 1
-            print("Iteration", it)
-            display_game(ball_pos, paddle_pos, blocks, walls, score)
+            pos, tile_id = tuple(output[:2]), output[2]
+            if pos == (-1, 0):
+                score = tile_id
+            else:
+                screen[pos] = tile_id
+
+                if tile_id == BALL_ID:
+                    ball_pos = pos
+                elif tile_id == PADDLE_ID:
+                    paddle_pos = pos
+
+        # choose joystick direction
+        joystick_dir = sign(ball_pos[0] - paddle_pos[0])
+        vm.add_input(joystick_dir)
+
+        it += 1
+
+        if verbose:
+            print("\nIteration", it)
+            print("Score:", score)
+            display(screen)
+    return score
 
 
-def display_game(ball_pos, paddle_pos, blocks, walls, score):
-    x_min = min(ball_pos, paddle_pos, *blocks, *walls, key=lambda p: p[0])[0]
-    x_max = max(ball_pos, paddle_pos, *blocks, *walls, key=lambda p: p[0])[0]
-    y_min = min(ball_pos, paddle_pos, *blocks, *walls, key=lambda p: p[1])[1]
-    y_max = max(ball_pos, paddle_pos, *blocks, *walls, key=lambda p: p[1])[1]
-    screen = [[" " for x in range(x_max + 1)] for y in range(y_max + 1)]
-    screen[ball_pos[1]][ball_pos[0]] = "\u2B24"
-    screen[paddle_pos[1]][paddle_pos[0]] = "="
-    for block in blocks:
-        screen[block[1]][block[0]] = "#"
-    for wall in walls:
-        screen[wall[1]][wall[0]] = "\u2588"
-    print("Score:", score)
-    print("\n".join(["".join(line) for line in screen]))
+def display(screen):
+    x_max = max([pos[0] for pos in screen.keys()])
+    y_max = max([pos[1] for pos in screen.keys()])
+
+    tile_to_chr = {
+        EMPTY_ID: " ",
+        WALL_ID: "\u2588",
+        BLOCK_ID: "#",
+        PADDLE_ID: "=",
+        BALL_ID: "\u2B24",
+    }
+
+    print(
+        "\n".join(
+            [
+                "".join([tile_to_chr[screen[(x, y)]] for x in range(x_max + 1)])
+                for y in range(y_max + 1)
+            ]
+        )
+    )
 
 
 def get_blocks(program):
