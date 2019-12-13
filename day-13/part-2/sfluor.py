@@ -113,17 +113,10 @@ def print_tiles(tiles):
 
     trad = [" ", "B", "#", "-", "X"]
 
-    out = ""
-    print(m_x, m_y)
-    for y in range(m_y):
-        for x in range(m_x + 1):
-            v = tiles.get((x, y), 0)
-
-            out += trad[v]
-
-        out += "\n"
-
-    print(out)
+    print("\n".join(
+        "".join(trad[tiles.get((x, y), 0) for x in range(m_x + 1))
+        for y in range(m_y)
+    ))
 
 
 def tiles_to_img(tiles):
