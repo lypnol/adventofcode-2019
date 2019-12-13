@@ -159,8 +159,13 @@ class VM:
         return
 
     def get_params_pointers(self, instruction, n_params):
-        modes = [(instruction // 10 ** i) % 10 for i in range(2, 2 + n_params)]
-        return [self.get_param_pointer(modes[i], i + 1) for i in range(n_params)]
+        pointers = [None] * n_params
+        instruction //= 100
+        for i in range(n_params):
+            mode = instruction % 10
+            instruction //= 10
+            pointers[i] = self.get_param_pointer(mode, i + 1)
+        return pointers
 
     def get_param_pointer(self, mode, pos):
         if mode == 0:
