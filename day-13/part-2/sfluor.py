@@ -228,4 +228,4 @@ class SfluorSubmission(SubmissionPy):
                 #     images.append(tiles_to_img(tiles))
 
         # images_to_video(images)
-        return sum(t == 2 for t in tiles.values())
+        return scores[-1]
