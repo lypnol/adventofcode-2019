@@ -10,8 +10,8 @@ class RemiSubmission(SubmissionPy):
         p = [int(n) for n in s.split(",")]
         p[0] = 2
 
-        width = 45
-        height = 23
+        width = 100
+        height = 100
 
         score = 0
         ball = 0
@@ -21,10 +21,10 @@ class RemiSubmission(SubmissionPy):
         cabinet = IntCode(p)
         while not cabinet.exited:
             cabinet.execute()
-            for i in range(len(cabinet.p_output) // 3):
-                x = cabinet.p_output[3 * i]
-                y = cabinet.p_output[3 * i + 1]
-                tile = cabinet.p_output[3 * i + 2]
+            while len(cabinet.p_output) >= 3:
+                tile = cabinet.p_output.pop()
+                y = cabinet.p_output.pop()
+                x = cabinet.p_output.pop()
                 if x == -1 and y == 0:
                     score = tile
                     continue
