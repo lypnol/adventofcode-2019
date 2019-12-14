@@ -1,0 +1,134 @@
+
+# Read input
+
+in &codeLen
+readLoop:>
+add @code &rIdx &inAddr
+in inAddr:&0
+add &rIdx 1 &rIdx
+eq &rIdx &codeLen &readEnd
+jmpz readEnd:0 @readLoop
+
+add @code &codeLen &pAddr
+
+# Loop over noun/verb and execute computer
+
+add 0 0 &codeNoun
+nounLoop:>
+
+add 0 0 &codeVerb
+verbLoop:>
+
+jmpz 0 @execute
+execReturn:>
+
+# Check if the result is the one we're looking for
+eq &execOutput 19690720 &found
+jmpz found:0 @notFound
+mult &codeNoun 100 &nounPart
+add nounPart:0 &codeVerb &outValue
+out outValue:0
+stop
+notFound:>
+
+# Incr codeVerb and loop
+add &codeVerb 1 &codeVerb
+eq &codeVerb 100 &verbEnd
+jmpz verbEnd:0 @verbLoop
+
+# Incr codeNoun and loop
+add &codeNoun 1 &codeNoun
+eq &codeNoun 100 &nounEnd
+jmpz nounEnd:0 @nounLoop
+
+out -1
+stop
+
+
+# EXECUTE COMPUTER
+
+execute:>
+
+# Copy code to p
+
+add 0 0 &rIdx
+cpyLoop:>
+add @code &rIdx &cpyInAddr
+add &pAddr &rIdx &cpyOutAddr
+add cpyInAddr:&0 0 cpyOutAddr:&0
+add &rIdx 1 &rIdx
+eq &rIdx &codeLen &cpyEnd
+jmpz cpyEnd:0 @cpyLoop
+
+# Run program
+
+add 0 0 &pc
+
+runLoop:>
+add &pAddr &pc &opAddr
+add opAddr:&0 0 &op
+
+add &op -99 &isStop
+jmpz isStop:0 @implStop
+
+add &opAddr 1 &param1Addr
+add &opAddr 2 &param2Addr
+add &opAddr 3 &param3Addr
+add param1Addr:&0 0 &param1
+add param2Addr:&0 0 &param2
+add param3Addr:&0 0 &param3
+
+add &pAddr &param1 &val1Addr
+add &pAddr &param2 &val2Addr
+add val1Addr:&0 0 &val1
+add val2Addr:&0 0 &val2
+
+add &op -1 &isAdd
+jmpz isAdd:0 @implAdd
+add &op -2 &isMult
+jmpz isMult:0 @implMult
+
+stop
+
+implAdd:>
+add &val1 &val2 &opResult
+jmpz 0 @writeResult
+
+implMult:>
+mult &val1 &val2 &opResult
+jmpz 0 @writeResult
+
+writeResult:>
+add &pc 4 &pc
+add &pAddr &param3 &val3Addr
+add &opResult 0 val3Addr:&0
+jmpz 0 @runLoop
+
+implStop:>
+add &pAddr 0 &execOutAddr
+add execOutAddr:&0 0 &execOutput
+jmpz 0 @execReturn
+
+
+# VARIABLES
+
+codeLen:0
+
+rIdx:0
+
+pAddr:0
+pc:0
+
+op:0
+param1:0
+param2:0
+param3:0
+val1:0
+val2:0
+opResult:0
+
+execOutput:0
+
+code:0
+codeNoun:0
+codeVerb:0
