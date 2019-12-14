@@ -4,7 +4,7 @@ import re
 from itertools import chain
 
 
-# ICC: An Intcode ASM Compiler
+# ICC: An Intcode Assembler
 
 
 ops = {
@@ -30,10 +30,12 @@ def iccompile(source_str):
 
     labels = {}
 
+    elems_nolabels = []
+
     # Find labels
-    for i in range(n):
-        if ":" in elems[i]:
-            parts = elems[i].split(":")
+    for elem in elems:
+        if ":" in elem:
+            parts = elem.split(":")
             if len(parts) != 2:
                 raise Exception("Invalid element: " + elems[i])
             label = parts[0]
@@ -41,8 +43,13 @@ def iccompile(source_str):
                 raise Exception("Invalid label: " + label)
             if label in labels:
                 raise Exception("Label defined twice: " + label)
-            labels[label] = i
-            elems[i] = parts[1]
+            labels[label] = len(elems_nolabels)
+            elem = parts[1]
+        if elem == ">":
+            continue
+        elems_nolabels.append(elem)
+
+    elems = elems_nolabels
 
     print_labels(labels)
 
@@ -121,7 +128,8 @@ in &input # test comment
 eq 2 input:0 &inputIsTwo
 jmpnz inputIsTwo:0 @loop
 stop
-loop:add -1 &counter &counter
+loop:>
+add -1 &counter &counter
 jmpnz counter:1000000 @loop
 stop
 """
