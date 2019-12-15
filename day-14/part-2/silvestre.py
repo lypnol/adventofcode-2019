@@ -70,7 +70,7 @@ class SilvestreSubmission(SubmissionPy):
         complexity = self.get_complexity(reactions)
 
         too_low = 0
-        too_high = 10**12 // self.compute_nb_of_ore_needed(1, reactions, complexity)
+        too_high = 100000000 
         nb_of_fuel = 500000
         while True:
             nb_of_needed_ore = self.compute_nb_of_ore_needed(nb_of_fuel, reactions, complexity)
