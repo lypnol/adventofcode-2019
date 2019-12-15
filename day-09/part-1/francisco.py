@@ -4,6 +4,7 @@ from tool.runners.python import SubmissionPy
 import copy
 from collections import defaultdict
 
+
 def execute(program, input_):
     program = defaultdict(lambda: 0, {i: e for i, e in enumerate(program)})
     i = 0

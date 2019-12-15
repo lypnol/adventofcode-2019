@@ -2,6 +2,7 @@ from tool.runners.python import SubmissionPy
 
 from collections import deque, defaultdict
 
+
 def lines_to_graph_part2(lines):
     graph = defaultdict(lambda: [])
     for line in lines:
@@ -23,7 +24,7 @@ def solve_part2(graph):
                 seen.add(neighbor)
                 q.append((neighbor, l + 1))
 
-class FranciscoSubmission(SubmissionPy):
 
+class FranciscoSubmission(SubmissionPy):
     def run(self, s):
         return solve_part2(lines_to_graph_part2(s.splitlines()))
