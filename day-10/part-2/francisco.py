@@ -30,7 +30,7 @@ def seeable(grid, x1, y1):
 
 def solve_part1(grid):
     return max(
-        ((x, y) for (x, y) in grid), key=lambda pos: seeable(grid, pos[0], pos[1]),
+        ((x, y) for (x, y) in grid), key=lambda pos: seeable(grid, pos[0], pos[1])
     )
 
 
