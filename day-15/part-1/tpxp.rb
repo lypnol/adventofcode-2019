@@ -67,7 +67,7 @@ class GameRunner
   def play
     loop do
       throw :onlyWalls if @to_explore.length == 0
-      target = @to_explore.shift
+      target = @to_explore.pop
       path = path_finder target
       #output = nil
       while @pos_x != target[1] or @pos_y != target[0]
