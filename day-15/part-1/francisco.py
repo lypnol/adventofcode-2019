@@ -93,25 +93,22 @@ class IntCodeVM:
 
 WALL, OK, OXYGEN = 0, 1, 2
 NORTH, SOUTH, WEST, EAST = 1, 2, 3, 4
-DIRECTIONS = [NORTH, SOUTH, WEST, EAST]
-DELTA = {NORTH: (-1, 0), SOUTH: (1, 0), WEST: (0, -1), EAST: (0, 1)}
+DIRECTIONS = {NORTH: (-1, 0), SOUTH: (1, 0), WEST: (0, -1), EAST: (0, 1)}
+OPPOSITE = {NORTH: SOUTH, SOUTH: NORTH, WEST: EAST, EAST: WEST}
 
 
-def next_position(position, direction):
-    return tuple(pos + delta for (pos, delta) in zip(position, DELTA[direction]))
+def compute_next_position(position, direction):
+    return tuple(pos + delta for (pos, delta) in zip(position, DIRECTIONS[direction]))
 
 
-def move(vm, position, direction):
-    # XXX: this isn't ideal, we end up spending a lot of time doing copies of the vm
-    vm = vm.copy()
+def show(walls):
+    min_X, max_X = min(e[0] for e in walls), max(e[0] for e in walls)
+    min_Y, max_Y = min(e[1] for e in walls), max(e[1] for e in walls)
 
-    output = vm.run([direction])
-    assert len(output) == 1
-
-    code = output[0]
-    assert code in [WALL, OK, OXYGEN]
-
-    return vm, code == OXYGEN, code == WALL
+    return "\n".join(
+        "".join("#" if (X, Y) in walls else " " for Y in range(min_Y, max_Y + 1))
+        for X in range(min_X, max_X + 1)
+    )
 
 
 def solve_part1(program):
@@ -119,19 +116,37 @@ def solve_part1(program):
     seen = {(0, 0)}
     while q:
         distance, position, vm = q.popleft()
+
+        valid_next_directions = []
+
+        # try to make steps in all directions
         for direction in DIRECTIONS:
-            next_pos = next_position(position, direction)
+            next_pos = compute_next_position(position, direction)
             if next_pos in seen:
                 continue
 
-            next_vm, is_oxygen, is_wall = move(vm, position, direction)
+            output = vm.run([direction])
+            assert len(output) == 1
+            status_code = output[0]
+            assert status_code in [WALL, OK, OXYGEN]
 
-            if is_oxygen:
+            if status_code == OXYGEN:
                 return distance + 1
 
             seen.add(next_pos)
-            if not is_wall:
-                q.append((distance + 1, next_pos, next_vm))
+
+            # step was successful, keep that in mind and go back to previous position
+            if status_code != WALL:
+                valid_next_directions.append(direction)
+                output = vm.run([OPPOSITE[direction]])
+                assert output == [OK]
+
+        for i, direction in enumerate(valid_next_directions):
+            # duplicate the vm only if there are more than one valid next directions
+            vm_ = vm.copy() if i < len(valid_next_directions) - 1 else vm
+            output = vm_.run([direction])
+            assert output == [OK]
+            q.append((distance + 1, compute_next_position(position, direction), vm_))
 
 
 class FranciscoSubmission(SubmissionPy):

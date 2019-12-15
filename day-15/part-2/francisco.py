@@ -93,50 +93,64 @@ class IntCodeVM:
 
 WALL, OK, OXYGEN = 0, 1, 2
 NORTH, SOUTH, WEST, EAST = 1, 2, 3, 4
-DIRECTIONS = [NORTH, SOUTH, WEST, EAST]
-DELTA = {NORTH: (-1, 0), SOUTH: (1, 0), WEST: (0, -1), EAST: (0, 1)}
+DIRECTIONS = {NORTH: (-1, 0), SOUTH: (1, 0), WEST: (0, -1), EAST: (0, 1)}
+OPPOSITE = {NORTH: SOUTH, SOUTH: NORTH, WEST: EAST, EAST: WEST}
 
 
-def next_position(position, direction):
-    return tuple(pos + delta for (pos, delta) in zip(position, DELTA[direction]))
+def compute_next_position(position, direction):
+    return tuple(pos + delta for (pos, delta) in zip(position, DIRECTIONS[direction]))
 
 
-def move(vm, position, direction):
-    # XXX: this isn't ideal, we end up spending a lot of time doing copies of the vm
-    vm = vm.copy()
+def show(walls):
+    min_X, max_X = min(e[0] for e in walls), max(e[0] for e in walls)
+    min_Y, max_Y = min(e[1] for e in walls), max(e[1] for e in walls)
 
-    output = vm.run([direction])
-    assert len(output) == 1
-
-    code = output[0]
-    assert code in [WALL, OK, OXYGEN]
-
-    return vm, code == OXYGEN, code == WALL
+    return "\n".join(
+        "".join("#" if (X, Y) in walls else " " for Y in range(min_Y, max_Y + 1))
+        for X in range(min_X, max_X + 1)
+    )
 
 
 def solve_part2(program):
     # first bfs, from (0, 0) to explore the maze and find the oxygen source
-    q = deque([(0, (0, 0), IntCodeVM(program))])
+    q = deque([((0, 0), IntCodeVM(program))])
     ok = {(0, 0)}
     walls = set()
     oxygen = None
     while q:
-        distance, position, vm = q.popleft()
+        position, vm = q.popleft()
+
+        valid_next_directions = []
+
+        # try to make steps in all directions
         for direction in DIRECTIONS:
-            next_pos = next_position(position, direction)
+            next_pos = compute_next_position(position, direction)
             if next_pos in ok or next_pos in walls:
                 continue
 
-            next_vm, is_oxygen, is_wall = move(vm, position, direction)
+            output = vm.run([direction])
+            assert len(output) == 1
+            status_code = output[0]
+            assert status_code in [WALL, OK, OXYGEN]
 
-            if is_oxygen:
+            if status_code == OXYGEN:
                 oxygen = next_pos
 
-            if is_wall:
-                walls.add(next_pos)
-            else:
+            # step was successful, keep that in mind and go back to previous position
+            if status_code != WALL:
                 ok.add(next_pos)
-                q.append((distance + 1, next_pos, next_vm))
+                valid_next_directions.append(direction)
+                output = vm.run([OPPOSITE[direction]])
+                assert output == [OK]
+            else:
+                walls.add(next_pos)
+
+        for i, direction in enumerate(valid_next_directions):
+            # duplicate the vm only if there are more than one valid next directions
+            vm_ = vm.copy() if i < len(valid_next_directions) - 1 else vm
+            output = vm_.run([direction])
+            assert output in [[OK], [OXYGEN]]
+            q.append((compute_next_position(position, direction), vm_))
 
     # second bfs, from the oxygen source, to find the point of the maze that is the
     # furthest from the source
@@ -147,7 +161,7 @@ def solve_part2(program):
         distance, position = q.popleft()
         max_distance = distance
         for direction in DIRECTIONS:
-            next_pos = next_position(position, direction)
+            next_pos = compute_next_position(position, direction)
             if next_pos in ok and next_pos not in seen:
                 seen.add(next_pos)
                 q.append((distance + 1, next_pos))
