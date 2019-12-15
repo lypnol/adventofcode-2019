@@ -23,12 +23,9 @@ def parse_reactions(s):
 
     for line in s.splitlines():
         reagents_str, products_str = [g.strip() for g in line.split("=>")]
-        match = prog.match(line)
         reagents = [(int(qty), name) for (qty, name) in prog.findall(reagents_str)]
-        product_qty, product_name = (
-            int(prog.findall(products_str)[0][0]),
-            prog.findall(products_str)[0][1],
-        )
+        products_all = prog.findall(products_str)[0]
+        product_qty, product_name = (int(products_all[0]), products_all[1])
         recipes[product_name] = {"qty": product_qty, "reagents": reagents}
 
     recipes[BASE_REAGENT] = {"qty": 1, "reagents": []}
