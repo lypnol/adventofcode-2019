@@ -1,7 +1,8 @@
 from tool.runners.python import SubmissionPy
 
 from itertools import permutations
-from random import randint
+from collections import deque
+from copy import deepcopy
 
 palette = {0: " ", 1: "#", 2: "x", 3: "_", 4: "o"}
 
@@ -10,92 +11,53 @@ class RemiSubmission(SubmissionPy):
     def run(self, s):
         p = [int(n) for n in s.split(",")]
         droid = IntCode(p)
+        self.directions = [(0, 1), (0, -1), (-1, 0), (1, 0)]
 
         self.maze = {(0, 0): "."}
-        self.coor = (0, 0)
-        self.path = [(0, 0)]
-        self.directions = [(0, 1), (0, -1), (-1, 0), (1, 0)]
-        direction = 0
+        coor = (0, 0)
+        self.oxygen = (0, 0)
 
-        while True:
-            droid.p_input.append(direction + 1)
-            droid.execute()
-            code = droid.p_output.pop()
-            if code == 0:
-                self.maze[
-                    (
-                        self.coor[0] + self.directions[direction][0],
-                        self.coor[1] + self.directions[direction][1],
+        queue = deque([(coor, 0, droid)])
+
+        while queue:
+            coor, distance, droid = queue.popleft()
+            for direction, adj in enumerate(self.adjacent(coor)):
+                if self.maze.get(adj, "?") != "?":
+                    continue
+
+                ddroid = droid.copy()
+                ddroid.p_input.append(direction + 1)
+                ddroid.execute()
+                code = ddroid.p_output.pop()
+                if code == 0:
+                    self.maze[
+                        (
+                            coor[0] + self.directions[direction][0],
+                            coor[1] + self.directions[direction][1],
+                        )
+                    ] = "#"
+                elif code == 1 or code == 2:
+                    new_coor = (
+                        coor[0] + self.directions[direction][0],
+                        coor[1] + self.directions[direction][1],
                     )
-                ] = "#"
-                direction = self.choose_new_direction()
-            elif code == 1:
-                self.maze[
-                    (
-                        self.coor[0] + self.directions[direction][0],
-                        self.coor[1] + self.directions[direction][1],
-                    )
-                ] = "."
-                self.coor = (
-                    self.coor[0] + self.directions[direction][0],
-                    self.coor[1] + self.directions[direction][1],
-                )
-                self.path.append(self.coor)
-            elif code == 2:
-                self.maze[
-                    (
-                        self.coor[0] + self.directions[direction][0],
-                        self.coor[1] + self.directions[direction][1],
-                    )
-                ] = "."
-                self.coor = (
-                    self.coor[0] + self.directions[direction][0],
-                    self.coor[1] + self.directions[direction][1],
-                )
-                self.path.append(self.coor)
-                break
-
-        self.display_maze()
-
-        while self.minimize_path():
-            pass
-
-        return len(self.path) - 1
-
-    def minimize_path(self):
-        min_path = []
-        i = 0
-        changed = False
-        while i < len(self.path):
-            if i < len(self.path) - 2 and self.path[i] == self.path[i + 2]:
-                changed = True
-                min_path.append(self.path[i])
-                i += 3
+                    self.maze[new_coor] = "."
+                    queue.append((new_coor, distance + 1, ddroid))
+                    if code == 2:
+                        self.oxygen = new_coor
+                        break
             else:
-                min_path.append(self.path[i])
-                i += 1
-        self.path = min_path
+                continue
+            break
 
-        return changed
+        return distance + 1
 
-    def choose_new_direction(self):
-        neighbours = []
-        for direction in range(len(self.directions)):
-            coor = (
-                self.coor[0] + self.directions[direction][0],
-                self.coor[1] + self.directions[direction][1],
-            )
-            tile = self.maze.get(coor, "?")
-            if tile == "#":
-                neighbours.append(0)
-            elif tile == ".":
-                neighbours.append(1)
-            elif tile == "?":
-                neighbours.append(2)
+    def adjacent(self, coor):
+        adj = []
+        for direction in self.directions:
+            adj.append((coor[0] + direction[0], coor[1] + direction[1]))
 
-        return max(
-            (i for i in range(len(self.directions))), key=lambda i: neighbours[i]
-        )
+        return adj
 
     def display_maze(self):
         maxx = max(x for (x, y) in self.maze.keys())
@@ -121,6 +83,9 @@ class IntCode:
         self.p_output = []
         self.exited = False
         self.relative_base = 0
+
+    def copy(self):
+        return deepcopy(self)
 
     def get_param_p(self, index):
         param = self.p[self.pc + index + 1]
