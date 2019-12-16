@@ -3,16 +3,15 @@ def run(s)
   pattern = [0,1,0,-1]
   100.times do
     # Number to compute
-    new_l = []
     l.length.times do |i|
       # Sum computation
       s = 0
-      l.length.times do |j|
+      (i...l.length).each do |j|
         s += pattern[(j+1)/(i+1) % pattern.length] * l[j]
       end
-      new_l[i] = s.abs % 10
+      # Okay since the computation uses 0 factors for numbers before i
+      l[i] = s.abs % 10
     end
-    l = new_l
   end
   l[0...8].join
 end
