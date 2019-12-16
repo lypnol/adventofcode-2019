@@ -12,7 +12,7 @@ class ThoreSubmission(SubmissionPy):
         # :param s: input in string format
         # :return: solution flag
         offset = int(s[:7])
-        assert offset > len(s) // 2
+        assert offset > N_REPETITIONS * len(s) // 2
 
         signal = [int(d) for d in s]
         signal = islice(
