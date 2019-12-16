@@ -1,3 +1,4 @@
+from itertools import chain, repeat, islice, cycle
 import numpy as np
 
 from tool.runners.python import SubmissionPy
@@ -13,12 +14,18 @@ class ThoreSubmission(SubmissionPy):
         offset = int(s[:7])
         assert offset > len(s) // 2
 
-        signal = [int(d) for d in s] * N_REPETITIONS
-        signal = np.array(signal[offset:], dtype=int)[::-1]
+        signal = [int(d) for d in s]
+        signal = islice(
+            chain(islice(signal, offset % len(s), len(s)), cycle(signal)),
+            0,
+            len(s) * N_REPETITIONS - offset,
+        )
+        signal = np.flip(np.array(list(signal), dtype=np.int))
 
         for k in range(N_PHASES):
             np.cumsum(signal, out=signal)
-            np.mod(signal, 10, out=signal)
+            if k % 3 == 1:  # HACK: min number of mod to prevent int overflows
+                np.mod(signal, 10, out=signal)
 
         return "".join([str(d % 10) for d in signal[-8:][::-1]])
 
