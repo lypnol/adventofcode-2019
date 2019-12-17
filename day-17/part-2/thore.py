@@ -3,7 +3,8 @@ from collections import defaultdict, deque
 from tool.runners.python import SubmissionPy
 
 SCAFFOLD = "#"
-ROBOT = "^v<>"
+ROBOT = "^>v<"
+DELTAS = [(-1, 0), (0, 1), (1, 0), (0, -1)]
 SCAFFOLD_CHARS = SCAFFOLD + ROBOT
 
 
@@ -16,14 +17,21 @@ class ThoreSubmission(SubmissionPy):
         robot = VM(program)  # , print_output=True)
         robot.memory[0] = 2  # Wake up
 
-        logic = [
-            "A,A,B,C,B,C,B,C,A,C",  # Main routine
-            "R,6,L,8,R,8",  # A
-            "R,4,R,6,R,6,R,4,R,4",  # B
-            "L,8,R,6,L,10,L,10",  # C
-            "n",  # Video feed
-        ]
-        for line in logic:
+        robot.run()
+        world = "".join(chr(d) for d in robot.stdout).rstrip().splitlines()[:-2]
+
+        instructions = generate_instructions(world)
+        main, functions = compress_instructions(instructions)
+
+        main_map = ["A", "B", "C"]
+        main_str = ",".join([main_map[f] for f in main])
+        functions_str = "\n".join(",".join(f) for f in functions)
+        logic = "\n".join([main_str, functions_str, "n"])
+
+        # print(f"Uncompressed:\n{instructions}\n")
+        # print(f"Compressed:\n{logic}")
+
+        for line in logic.splitlines():
             for c in line:
                 robot.add_input(ord(c))
             robot.add_input(ord("\n"))
@@ -31,6 +39,113 @@ class ThoreSubmission(SubmissionPy):
         robot.run()
 
         return robot.stdout[-1]
+
+
+def generate_instructions(world):
+    pos = find_robot(world)
+    direction = ROBOT.find(world[pos[0]][pos[1]])
+    assert direction != -1
+
+    instructions = []
+    dead_end = False
+    forward_count = 0
+    while not dead_end:
+        next_pos = get_next_pos(pos, direction)
+        if is_scaffold(world, next_pos):  # Go forward
+            pos = next_pos
+            forward_count += 1
+        else:
+            if forward_count > 0:  # Flush forward moves
+                instructions.append(str(forward_count))
+                forward_count = 0
+            next_pos_r = get_next_pos(pos, (direction + 1) % len(ROBOT))
+            next_pos_l = get_next_pos(pos, (direction - 1) % len(ROBOT))
+            if is_scaffold(world, next_pos_r):  # Turn right
+                direction = (direction + 1) % len(ROBOT)
+                instructions.append("R")
+            elif is_scaffold(world, next_pos_l):  # Turn left
+                direction = (direction - 1) % len(ROBOT)
+                instructions.append("L")
+            else:
+                dead_end = True  # End
+
+    return ",".join(instructions)
+
+
+def get_next_pos(pos, direction):
+    delta = DELTAS[direction]
+    return (pos[0] + delta[0], pos[1] + delta[1])
+
+
+def is_scaffold(world, pos):
+    try:
+        return world[pos[0]][pos[1]] in SCAFFOLD_CHARS
+    except IndexError:
+        return False
+
+
+def find_robot(world):
+    width = len(world[0]) + 1
+    idx = sum("\n".join(world).find(r) for r in ROBOT) + len(ROBOT) - 1
+    return (idx // width, idx % width)
+
+
+def compress_instructions(instructions, max_dict_size=3, max_chars=10, min_code_size=4):
+    instructions = instructions.split(",")
+    compressed = []
+    codes = []
+
+    def compress_backtracking(frm):
+        if frm == len(instructions):
+            return True
+
+        # Check if prefix match existing code
+        for i, code in enumerate(codes):
+            if (
+                len(code) > 0
+                and len(compressed) < max_chars
+                and instructions[frm : frm + len(code)] == code
+            ):
+                compressed.append(i)
+                appended_code = False
+
+                if compress_backtracking(frm + len(code)):
+                    return True
+                else:
+                    compressed.pop()
+
+        # Try to extend last code
+        if (
+            len(codes) > 0
+            and len(codes[-1]) < max_chars
+            and codes[-1] == instructions[frm - len(codes[-1]) : frm]
+        ):
+            codes[-1].append(instructions[frm])
+            if compress_backtracking(frm + 1):
+                return True
+            else:
+                codes[-1].pop()
+
+        # Try to create a new code
+        if (
+            len(codes) < max_dict_size
+            and (len(codes) == 0 or len(codes[-1]) >= min_code_size)
+            and len(compressed) < max_chars
+        ):
+            codes.append([instructions[frm]])
+            compressed.append(len(codes) - 1)
+            if compress_backtracking(frm + 1):
+                return True
+            else:
+                codes.pop()
+                compressed.pop()
+        return False
+
+    compress_backtracking(0)
+    return compressed, codes
+
+
+#################### IntCode VM ####################
 
 
 def list_to_dict(l):
