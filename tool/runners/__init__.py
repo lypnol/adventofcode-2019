@@ -15,6 +15,7 @@ from tool.runners.rust import SubmissionRs
 from tool.runners.ts import SubmissionTs
 from tool.runners.wrapper import SubmissionWrapper
 from tool.runners.julia import SubmissionJulia
+from tool.runners.vlang import SubmissionV
 from tool.utils import load_subclass
 
 TOOL_BY_LANGUAGE = {
@@ -31,6 +32,7 @@ TOOL_BY_LANGUAGE = {
     "rs": "cargo",
     "sh": "bash",
     "jl": "julia",
+    "v": "v"
 }
 LANGUAGES = list(TOOL_BY_LANGUAGE.keys())
 
@@ -72,3 +74,5 @@ def load_submission_runnable(path, language):
         return SubmissionJulia(path)
     elif language == "ts":
         return SubmissionTs(path)
+    elif language == "v":
+        return SubmissionV(path)
