@@ -4,7 +4,7 @@ import subprocess
 from tool.runners.wrapper import SubmissionWrapper
 
 
-class SubmissionJs(SubmissionWrapper):
+class SubmissionNode(SubmissionWrapper):
     def __init__(self, file):
         SubmissionWrapper.__init__(self)
         self.file = file
@@ -24,4 +24,4 @@ class SubmissionJs(SubmissionWrapper):
                 return None
 
     def __call__(self):
-        return SubmissionJs(self.file)
+        return SubmissionNode(self.file)
