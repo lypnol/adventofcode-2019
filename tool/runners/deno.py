@@ -10,7 +10,7 @@ class SubmissionDeno(SubmissionWrapper):
         self.file = file
 
     def language(self):
-        return "mjs"
+        return "deno.js"
 
     def exec(self, input):
         try:

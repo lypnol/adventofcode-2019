@@ -27,7 +27,7 @@ TOOL_BY_LANGUAGE = {
     "intcode": "python",
     "java": "java",
     "js": "node",
-    "mjs": "deno",
+    "deno.js": "deno",
     "deno.ts": "deno",
     "ts": "./node_modules/.bin/ts-node",
     "py": "python",
@@ -64,7 +64,7 @@ def load_submission_runnable(path, language):
         return SubmissionJava(path)
     elif language == "js":
         return SubmissionNode(path)
-    elif language == "mjs":
+    elif language == "deno.js":
         return SubmissionDeno(path)
     elif language == "deno.ts":
         return SubmissionDenoTS(path)
