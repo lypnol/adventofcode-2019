@@ -14,14 +14,10 @@ fn run(input string) int{
 
 	for i := 0; i < split.len; i++ {
 		fuel = (split[i].int() / 3) - 2
-		for {
+		for fuel > 0{
 			counter += fuel
 			fuel = (fuel / 3) - 2
-			if fuel <= 0 {
-				goto escape
-			}
 		}
-		escape:
 	}
 	return counter
 }
