@@ -16,142 +16,102 @@ class ThoreSubmission(SubmissionPy):
     def run(self, s):
         # :param s: input in string format
         # :return: solution flag
-        world = s
-        all_keys, doors, start = find_keys_and_doors(world)
-        world = world.splitlines()
-        distance = get_distance_fun(world)
+        self.all_keys, start = find_keys_and_start(s)
+        self.world = s.splitlines()
 
+        dist_comp = DistanceComputer(self.world)
+        self.get_distance = dist_comp.distance
+
+        # Dijsktra on (pos, keys) graph
         queue = [(0, start, frozenset())]
         visited = set()
 
         while len(queue) > 0:
             dist, pos, keys = heapq.heappop(queue)
-            # print(dist, pos, keys)
 
-            if len(keys) == len(all_keys):
+            if len(keys) == len(self.all_keys):
                 return dist
 
             if (pos, keys) in visited:
                 continue
 
-            visited.add((pos, keys))
-
-            for key, key_pos, key_dist in get_accessible_keys(
-                world, all_keys, pos, keys, distance
-            ):
+            for key, key_pos, key_dist in self.get_accessible_new_keys(pos, keys):
                 heapq.heappush(
                     queue, (dist + key_dist, key_pos, keys | frozenset([key]))
                 )
 
+            visited.add((pos, keys))
+
         return -1
 
-
-def get_accessible_keys(world, all_keys, pos, keys, distance_func):
-    for key in set(all_keys.keys()) - keys:
-        dist_to_key, keys_needed = distance_func(pos, all_keys[key])
-        # print(pos, keys, key, all_keys[key], dist_to_key, keys_needed)
-        if dist_to_key >= 0 and keys_needed.issubset(keys):
-            yield key, all_keys[key], dist_to_key
-
-
-def collect_keys(world):
-    remaining_keys, doors, start = find_keys_and_doors(world)
-    world = world.splitlines()
-    distance = get_distance_fun(world)
-
-    def collect(pos):
-        collect.counter += 1
-        # if collect.counter % 100 == 0:
-        #     print(collect.counter)
-        if len(remaining_keys) == 0:
-            return 0, []
-
-        res = float("inf")
-        best_key = None
-        best_path = []
-        for key, key_pos in list(remaining_keys.items()):
-            dist_to_key, keys_needed = distance(pos, key_pos)
-            # print(f"from={pos} to={keys[key]} dist={d_to_key} doors={keys_needed}")
-            if dist_to_key == -1 or len(keys_needed & set(remaining_keys.keys())) > 0:
-                # print(
-                #     f"Cannot get {key} from {pos}, don't have {keys.keys()} : need {keys_needed & set(keys.keys())}"
-                # )
-                continue  # cannot reach this key
-            # else:
-            # print(
-            #     f"Can get {key} from {pos}, don't have {keys.keys()} : need {keys_needed}"
-            # )
-
-            # print("Taking key", key)
-            remaining_keys.pop(key)
-            # print("***", collect(key_pos))
-            dist_remaining, path = collect(key_pos)
-            if dist_to_key + dist_remaining < res:
-                res = dist_to_key + dist_remaining
-                best_key = key
-                best_path = [key] + path
-            remaining_keys[key] = key_pos
-        # print(
-        #     f"remaining_keys={keys.keys()} dist={res} pos={pos} best_path={best_path}"
-        # )
-        return res, best_path
-
-    collect.counter = 0
-    return collect(start)
+    def get_accessible_new_keys(self, pos, keys):
+        for key in set(self.all_keys.keys()) - keys:
+            key_pos = self.all_keys[key]
+            dist_to_key, keys_needed = self.get_distance(pos, key_pos)
+            if dist_to_key >= 0 and keys_needed.issubset(keys):
+                yield key, key_pos, dist_to_key
 
 
-def get_distance_fun(world):
-    @lru_cache(maxsize=None)
-    def distance(frm, to):
-        # print(f"*** Called distance({frm}, {to})")
-        queue = deque([(frm, 0, set())])
-        visited = set()
-        while len(queue) != 0:
-            pos, dist, keys_needed = queue.popleft()
-            if pos == to:
-                # print("Found")
-                return dist, keys_needed
-            if pos in visited:
-                continue
-            for n in get_neighbours(world, pos):
-                if world[n[0]][n[1]].isalpha() and world[n[0]][n[1]].isupper():
-                    key = world[n[0]][n[1]].lower()
-                    keys_needed = keys_needed | set(key)
-                queue.append((n, dist + 1, keys_needed))
-            visited.add(pos)
-
-        return -1, set()
-
-    return distance
-
-
-def get_neighbours(world, pos):
-    neighbours = []
-    for (i, j) in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-        try:
-            if (
-                world[pos[0] + i][pos[1] + j] == EMPTY
-                or world[pos[0] + i][pos[1] + j].isalpha()
-                or world[pos[0] + i][pos[1] + j] == "@"
-            ):
-                neighbours.append((pos[0] + i, pos[1] + j))
-        except:
-            continue
-    # print("Neighbours of", pos, ":", neighbours)
-    return neighbours
-
-
-def find_keys_and_doors(world):
+def find_keys_and_start(world):
     width = len(world.splitlines()[0]) + 1
     keys = {
         m[0]: (m.start() // width, m.start() % width)
         for m in re.finditer(KEY_PATTERN, world)
     }
-    doors = {
-        m[0]: (m.start() // width, m.start() % width)
-        for m in re.finditer(DOOR_PATTERN, world)
-    }
     start_idx = world.find(START)
     start = (start_idx // width, start_idx % width)
-    return keys, doors, start
+    return keys, start
 
+
+class DistanceComputer:
+    """" Helper class to cache neighbours and distances computations """
+
+    def __init__(self, world):
+        self.world = world
+        self.distances = {}
+        self.neighbours = {}
+
+    def distance(self, frm, to):
+        """ Return distance between frm and to using BFS """
+        if (frm, to) in self.distances:
+            return self.distances[(frm, to)]
+
+        queue = deque([(frm, 0, set())])
+        visited = set()
+        while len(queue) != 0:
+            pos, dist, keys_needed = queue.popleft()
+            if pos in visited:
+                continue
+            else:
+                self.distances[(frm, pos)] = (dist, keys_needed)
+                self.distances[(pos, frm)] = (dist, keys_needed)
+            if pos == to:
+                return self.distances[(frm, pos)]
+            for x, y in self.get_neighbours(pos):
+                if self.world[x][y].isalpha() and self.world[x][y].isupper():
+                    key = self.world[x][y].lower()
+                    keys_needed = keys_needed | set(key)
+                queue.append(((x, y), dist + 1, keys_needed))
+
+            visited.add(pos)
+
+        return -1, set()
+
+    def get_neighbours(self, pos):
+        if pos in self.neighbours:
+            return self.neighbours[pos]
+
+        neighbours = []
+        for (i, j) in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            try:
+                if (
+                    self.world[pos[0] + i][pos[1] + j] == EMPTY
+                    or self.world[pos[0] + i][pos[1] + j].isalpha()
+                    or self.world[pos[0] + i][pos[1] + j] == "@"
+                ):
+                    neighbours.append((pos[0] + i, pos[1] + j))
+            except:
+                continue
+
+        self.neighbours[pos] = neighbours
+        return self.neighbours[pos]
