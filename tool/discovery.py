@@ -7,7 +7,7 @@ from os import walk
 from shutil import which
 
 # project
-from tool.runners import LANGUAGES, TOOL_BY_LANGUAGE, ext_by_language, language_by_ext
+from tool.runners import LANGUAGES, TOOL_BY_LANGUAGE, ext_by_language
 from tool.model import Problem, Submission, Input
 
 
@@ -123,12 +123,12 @@ def get_submissions(
             language for language in languages if language in get_supported_languages()
         ]
 
-    extensions = set([ext_by_language(language) for language in languages])
+    extensions = set(languages)
 
     submissions = []
     for _, _, files in walk(problem.path()):
         for filename in files:
-            submission, ext = os.path.splitext(filename)
+            submission, ext = filename.split('.', 1)
             author = os.path.basename(submission)
             if (ext not in extensions) or filename.endswith("_test.go"):
                 continue
@@ -136,7 +136,7 @@ def get_submissions(
                 continue
             if authors and author not in authors:
                 continue
-            submissions.append(Submission(problem, author, language_by_ext(ext)))
+            submissions.append(Submission(problem, author, ext))
         break  # stop at depth 1
     return submissions
 
