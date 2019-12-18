@@ -11,7 +11,7 @@ class SubmissionV(SubmissionWrapper):
         tmp = tempfile.NamedTemporaryFile(prefix="aoc")
         tmp.close()
         compile_output = subprocess.check_output(
-            ["v", "-o", tmp.name, file]
+            ["v", "-prod", "-o", tmp.name, file]
         ).decode()
         if compile_output:
             raise CompilationError(compile_output)
