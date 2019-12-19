@@ -91,7 +91,7 @@ def compute_distances(maze):
 
     for i in range(len(maze)):
         for j in range(len(maze[0])):
-            if maze[i][j] not in ["#", "."]:
+            if maze[i][j] == "@" or maze[i][j] in ascii_lowercase:
                 positions[maze[i][j]] = (i, j)
 
     def bfs(pos):
