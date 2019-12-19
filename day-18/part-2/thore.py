@@ -15,7 +15,40 @@ class ThoreSubmission(SubmissionPy):
     def run(self, s):
         # :param s: input in string format
         # :return: solution flag
-        return solve_part1(s)
+        world = s.splitlines()
+
+        # Edit map
+        start_idx = s.find(START)
+        width = len(world[0]) + 1
+        x, y = (start_idx // width, start_idx % width)
+        world[x] = world[x].replace(".@.", "###")
+        for i in [-1, 1]:
+            line = list(world[x + i])
+            line[y - 1] = "@"
+            line[y] = "#"
+            line[y + 1] = "@"
+            world[x + i] = "".join(line)
+
+        # Solve each robot independently
+        # WARNING: doesn't work if quadrants frontiers aren't straight
+        quadrants = [
+            "\n".join([line[:y] for line in world[:x]]),
+            "\n".join([line[y + 1 :] for line in world[:x]]),
+            "\n".join([line[:y] for line in world[x + 1 :]]),
+            "\n".join([line[y + 1 :] for line in world[x + 1 :]]),
+        ]
+
+        for i in range(len(quadrants)):
+            quadrants[i] = remove_doors_without_key(quadrants[i])
+
+        return sum(solve_part1(quadrant) for quadrant in quadrants)
+
+
+def remove_doors_without_key(s):
+    for m in re.finditer(DOOR_PATTERN, s):
+        if m[0].lower() not in s:
+            s = s.replace(m[0], ".")
+    return s
 
 
 def solve_part1(s):
