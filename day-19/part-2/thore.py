@@ -1,8 +1,5 @@
 from collections import defaultdict, deque
 
-from itertools import tee
-from copy import copy
-
 from tool.runners.python import SubmissionPy
 
 SQUARE_SIZE = 100
