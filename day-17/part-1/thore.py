@@ -34,7 +34,7 @@ def is_intersection(world, i, j):
         and (i - 1 >= 0 and world[i - 1][j] in SCAFFOLD_CHARS)
         and (i + 1 < len(world) and world[i + 1][j] in SCAFFOLD_CHARS)
         and (j - 1 >= 0 and world[i][j - 1] in SCAFFOLD_CHARS)
-        and (j + 1 < len(world) and world[i][j + 1] in SCAFFOLD_CHARS)
+        and (j + 1 < len(world[0]) and world[i][j + 1] in SCAFFOLD_CHARS)
     )
 
 
