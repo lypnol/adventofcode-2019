@@ -78,10 +78,10 @@ def get_next_pos(pos, direction):
 
 
 def is_scaffold(world, pos):
-    try:
-        return world[pos[0]][pos[1]] in SCAFFOLD_CHARS
-    except IndexError:
+    if pos[0] < 0 or pos[0] >= len(world) or pos[1] < 0 or pos[1] >= len(world[0]):
         return False
+
+    return world[pos[0]][pos[1]] in SCAFFOLD_CHARS
 
 
 def find_robot(world):
@@ -90,7 +90,7 @@ def find_robot(world):
     return (idx // width, idx % width)
 
 
-def compress_instructions(instructions, max_dict_size=3, max_chars=10, min_code_size=4):
+def compress_instructions(instructions, max_dict_size=3, max_chars=20, min_code_size=4):
     instructions = instructions.split(",")
     compressed = []
     codes = []
@@ -103,7 +103,7 @@ def compress_instructions(instructions, max_dict_size=3, max_chars=10, min_code_
         for i, code in enumerate(codes):
             if (
                 len(code) > 0
-                and len(compressed) < max_chars
+                and len(",".join(str(c) for c in compressed)) < max_chars
                 and instructions[frm : frm + len(code)] == code
             ):
                 compressed.append(i)
@@ -117,7 +117,7 @@ def compress_instructions(instructions, max_dict_size=3, max_chars=10, min_code_
         # Try to extend last code
         if (
             len(codes) > 0
-            and len(codes[-1]) < max_chars
+            and len(",".join(str(c) for c in codes[-1])) < max_chars
             and codes[-1] == instructions[frm - len(codes[-1]) : frm]
         ):
             codes[-1].append(instructions[frm])
@@ -130,7 +130,7 @@ def compress_instructions(instructions, max_dict_size=3, max_chars=10, min_code_
         if (
             len(codes) < max_dict_size
             and (len(codes) == 0 or len(codes[-1]) >= min_code_size)
-            and len(compressed) < max_chars
+            and len(",".join(str(c) for c in compressed)) < max_chars
         ):
             codes.append([instructions[frm]])
             compressed.append(len(codes) - 1)
