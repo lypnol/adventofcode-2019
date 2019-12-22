@@ -49,4 +49,7 @@ def invert(x, n):
         q = a // b
         a, b = b, a - q*b
         t, s = s, t - q*s
+
+    if a != 1:
+        raise Exception("not invertible")
     return t
