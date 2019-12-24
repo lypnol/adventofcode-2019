@@ -116,7 +116,6 @@ class Solution
     explored = Hash.new Float::INFINITY
     loop do
       d = solutions.keys.min
-      puts d
       sols = solutions[d]
       solutions.delete d
       sols.each do |sol|
