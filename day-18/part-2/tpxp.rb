@@ -34,7 +34,6 @@ class Solution
       puts l
       puts @req[@key_pos[l]]
     end
-=end
     # Any obvious solutions?
     4.times do |i|
       catch :notObvious do
@@ -51,6 +50,7 @@ class Solution
       end
     end
     throw :stop
+=end
   end
 
   def first_explore
