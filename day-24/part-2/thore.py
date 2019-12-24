@@ -25,6 +25,7 @@ def parse_input(s):
     lines = s.replace(BUG, "1").replace(EMPTY, "0").splitlines()
 
     n, p = len(lines), len(lines[0])
+    assert n % 2 == 1 and p % 2 == 1
     world = defaultdict(lambda: [[0 for _ in range(n)] for _ in range(p)])
     world[0] = [[int(c) for c in line] for line in lines]
 
@@ -38,7 +39,7 @@ def step(world):
     for level in levels + [min(levels) - 1, max(levels) + 1]:
         for i in range(n):
             for j in range(p):
-                if (i, j) == (2, 2):
+                if (i, j) == (n // 2, p // 2):
                     continue
                 n_bugs = sum(
                     world[level_n][i_n][j_n]
@@ -73,40 +74,40 @@ def get_neighbours(world, level, i, j):
     n, p = len(world[0]), len(world[0][0])
 
     if i - 1 >= 0:
-        if (i - 1, j) == (2, 2):
+        if (i - 1, j) == (n // 2, p // 2):
             for jj in range(p):
                 yield level + 1, n - 1, jj
         else:
             yield level, i - 1, j
     else:
-        yield level - 1, 1, 2
+        yield level - 1, 1, p // 2
 
     if j - 1 >= 0:
-        if (i, j - 1) == (2, 2):
+        if (i, j - 1) == (n // 2, p // 2):
             for ii in range(n):
                 yield level + 1, ii, p - 1
         else:
             yield level, i, j - 1
     else:
-        yield level - 1, 2, 1
+        yield level - 1, n // 2, 1
 
     if i + 1 < n:
-        if (i + 1, j) == (2, 2):
+        if (i + 1, j) == (n // 2, p // 2):
             for jj in range(p):
                 yield level + 1, 0, jj
         else:
             yield level, i + 1, j
     else:
-        yield level - 1, 3, 2
+        yield level - 1, n // 2 + 1, p // 2
 
     if j + 1 < p:
-        if (i, j + 1) == (2, 2):
+        if (i, j + 1) == (n // 2, p // 2):
             for ii in range(n):
                 yield level + 1, ii, 0
         else:
             yield level, i, j + 1
     else:
-        yield level - 1, 2, 3
+        yield level - 1, n // 2, p // 2 + 1
 
 
 def count_bugs(world):
