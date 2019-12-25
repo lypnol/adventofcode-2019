@@ -18,62 +18,82 @@ class ThoreSubmission(SubmissionPy):
         # :param s: input in string format
         # :return: solution flag
         program = [int(c) for c in s.split(",")]
-        droid = VM(program)  # , print_io=True)  # , interactive=True)
+        droid = VM(program)  # , print_io=True, interactive=True)
 
         # Explore and take items
         adjacency_list, inventory, curr_pos = explore(droid)
 
         # Go to security checkpoint
         path_to_detector = bfs(adjacency_list, curr_pos, DETECTOR_ROOM)
-        follow_path(droid, path_to_detector[:-1])
+        for door in path_to_detector[:-1]:
+            droid.run_ascii_command(door)
 
         # Bruteforce pressure-sensitive floor
         return bruteforce_detector(droid, inventory, path_to_detector[-1])
 
 
-def bruteforce_detector(droid, inventory, door):
-    def power_set(objects):
-        droid.add_input_ascii(door)
-        droid.run()
-        password = parse_password(droid.get_output_ascii())
-        if password is not None:
-            return password
+def explore(droid):
+    adjacency_list = {}
+    inventory = set()
 
-        if len(objects) > 0:
-            droid.add_input_ascii("take " + objects[0])
-            droid.run()
-            droid.get_output_ascii()
-            password = power_set(objects[1:])
-            if password is not None:
-                return password
-            else:
-                droid.add_input_ascii("drop " + objects[0])
-                droid.run()
-                droid.get_output_ascii()
+    def explore_backtracking(node_output):
+        name, objects, doors = parse_output(node_output)
+        if name in adjacency_list:
+            return name
 
-        if len(objects) > 0:
-            password = power_set(objects[1:])
-            if password is not None:
-                return password
+        for obj in objects:
+            if obj in DO_NOT_TAKE_OBJECTS:
+                continue
+            inventory.add(obj)
+            droid.run_ascii_command("take " + obj)
+        adjacency_list[name] = []
 
-        return None
+        for d in doors:
+            node_output = droid.run_ascii_command(d)
+            new_name = explore_backtracking(node_output)
+            adjacency_list[name].append((d, new_name))
+            if name != new_name:
+                droid.run_ascii_command(opposite_direction(d))
 
-    return power_set(list(inventory))
+        return name
+
+    droid.run()
+    curr_pos = explore_backtracking(droid.get_output_ascii())
+    return adjacency_list, inventory, curr_pos
 
 
-def parse_password(output):
-    m = re.search("You should be able to get in by typing (\d+)", output)
-    if m:
-        return m.group(1)
+def parse_output(output):
+    name_match = re.search("== (.*) ==", output)
+    name = name_match.group(1) if name_match else ""
+
+    objects_match = re.search("Items here:\n((- .+\n)+)\n", output)
+    if objects_match:
+        objects_str = objects_match.group(1)
+        objects = [m.group(1) for m in re.finditer("- (.*)", objects_str)]
     else:
-        return None
+        objects = []
+
+    doors_match = re.search("Doors here lead:\n((- .+\n)+)\n", output)
+    if doors_match:
+        doors_str = doors_match.group(0)
+        doors = [m.group(1) for m in re.finditer("- (.*)", doors_str)]
+    else:
+        doors = []
+
+    return name, objects, doors
 
 
-def follow_path(droid, path):
-    for door in path:
-        droid.add_input_ascii(door)
-        droid.run()
-        droid.get_output_ascii()
+def opposite_direction(direction):
+    if direction == "north":
+        return "south"
+    elif direction == "south":
+        return "north"
+    elif direction == "west":
+        return "east"
+    elif direction == "east":
+        return "west"
+    else:
+        raise ValueError(f"Unknown direction: {direction}")
 
 
 def bfs(adjacency_list, frm, to):
@@ -101,73 +121,36 @@ def bfs(adjacency_list, frm, to):
     return list(reversed(path))
 
 
-def explore(droid):
-    droid.run()
-    adjacency_list = {}
-    inventory = set()
+def bruteforce_detector(droid, inventory, door):
+    def bruteforce_backtracking(objects):
+        detector_output = droid.run_ascii_command(door)
+        password = parse_password(detector_output)
+        if password is not None:
+            return password
 
-    def explore_backtracking():
-        name, objects, doors = parse_output(droid.get_output_ascii())
-        if name in adjacency_list:
-            return name
+        if len(objects) > 0:
+            droid.run_ascii_command("take " + objects[0])
+            password = bruteforce_backtracking(objects[1:])
+            if password is not None:
+                return password
+            droid.run_ascii_command("drop " + objects[0])
 
-        for obj in objects:
-            if obj in DO_NOT_TAKE_OBJECTS:
-                continue
-            inventory.add(obj)
-            droid.add_input_ascii("take " + obj)
-            droid.run()
-            droid.get_output_ascii()
-        adjacency_list[name] = []
+        if len(objects) > 0:
+            password = bruteforce_backtracking(objects[1:])
+            if password is not None:
+                return password
 
-        for d in doors:
-            droid.add_input_ascii(d)
-            droid.run()
-            new_name = explore_backtracking()
-            adjacency_list[name].append((d, new_name))
-            if name != new_name:
-                droid.add_input_ascii(opposite_direction(d))
-                droid.run()
-                droid.get_output_ascii()
+        return None
 
-        return name
-
-    curr_pos = explore_backtracking()
-    return adjacency_list, inventory, curr_pos
+    return bruteforce_backtracking(sorted(inventory))
 
 
-def opposite_direction(direction):
-    if direction == "north":
-        return "south"
-    elif direction == "south":
-        return "north"
-    elif direction == "west":
-        return "east"
-    elif direction == "east":
-        return "west"
+def parse_password(output):
+    m = re.search("You should be able to get in by typing (\d+)", output)
+    if m:
+        return m.group(1)
     else:
-        raise ValueError(f"Unknown direction: {direction}")
-
-
-def parse_output(output):
-    name_match = re.search("== (.*) ==", output)
-    name = name_match.group(1) if name_match else ""
-
-    objects_match = re.search("Items here:\n((- .+\n)+)\n", output)
-    if objects_match:
-        objects_str = objects_match.group(1)
-        objects = [m.group(1) for m in re.finditer("- (.*)", objects_str)]
-    else:
-        objects = []
-
-    doors_match = re.search("Doors here lead:\n((- .+\n)+)\n", output)
-    if doors_match:
-        doors_str = doors_match.group(0)
-        doors = [m.group(1) for m in re.finditer("- (.*)", doors_str)]
-    else:
-        doors = []
-
-    return name, objects, doors
+        return None
 
 
 #################### IntCode VM ####################
