@@ -19,7 +19,7 @@ class ThoreSubmission(SubmissionPy):
         # :return: solution flag
         program = [int(c) for c in s.split(",")]
         droid = ASCIIComputer(program)  # , print_io=True)
-        droid.run_interactive()  # can be placed anywhere to continue interactively
+        # droid.run_interactive()  # can be placed anywhere to continue interactively
 
         # Explore and take items
         adjacency_list, inventory, curr_pos = explore(droid)
