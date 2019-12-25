@@ -18,7 +18,8 @@ class ThoreSubmission(SubmissionPy):
         # :param s: input in string format
         # :return: solution flag
         program = [int(c) for c in s.split(",")]
-        droid = VM(program)  # , print_io=True, interactive=True)
+        droid = ASCIIComputer(program)  # , print_io=True)
+        droid.run_interactive()  # can be placed anywhere to continue interactively
 
         # Explore and take items
         adjacency_list, inventory, curr_pos = explore(droid)
@@ -26,10 +27,12 @@ class ThoreSubmission(SubmissionPy):
         # Go to security checkpoint
         path_to_detector = bfs(adjacency_list, curr_pos, DETECTOR_ROOM)
         for door in path_to_detector[:-1]:
-            droid.run_ascii_command(door)
+            droid.run_command(door)
 
         # Bruteforce pressure-sensitive floor
-        return bruteforce_detector(droid, inventory, path_to_detector[-1])
+        return bruteforce_detector(
+            droid, inventory, path_to_detector[-1]
+        )  # , show_inv=True)
 
 
 def explore(droid):
@@ -45,20 +48,20 @@ def explore(droid):
             if obj in DO_NOT_TAKE_OBJECTS:
                 continue
             inventory.add(obj)
-            droid.run_ascii_command("take " + obj)
+            droid.run_command("take " + obj)
         adjacency_list[name] = []
 
         for d in doors:
-            node_output = droid.run_ascii_command(d)
+            node_output = droid.run_command(d)
             new_name = explore_backtracking(node_output)
             adjacency_list[name].append((d, new_name))
             if name != new_name:
-                droid.run_ascii_command(opposite_direction(d))
+                droid.run_command(opposite_direction(d))
 
         return name
 
-    droid.run()
-    curr_pos = explore_backtracking(droid.get_output_ascii())
+    start = droid.run()
+    curr_pos = explore_backtracking(start)
     return adjacency_list, inventory, curr_pos
 
 
@@ -121,19 +124,21 @@ def bfs(adjacency_list, frm, to):
     return list(reversed(path))
 
 
-def bruteforce_detector(droid, inventory, door):
+def bruteforce_detector(droid, inventory, door, show_inv=False):
     def bruteforce_backtracking(objects):
-        detector_output = droid.run_ascii_command(door)
+        if show_inv:
+            droid.run_command("inv")
+        detector_output = droid.run_command(door)
         password = parse_password(detector_output)
         if password is not None:
             return password
 
         if len(objects) > 0:
-            droid.run_ascii_command("take " + objects[0])
+            droid.run_command("take " + objects[0])
             password = bruteforce_backtracking(objects[1:])
             if password is not None:
                 return password
-            droid.run_ascii_command("drop " + objects[0])
+            droid.run_command("drop " + objects[0])
 
         if len(objects) > 0:
             password = bruteforce_backtracking(objects[1:])
@@ -156,12 +161,50 @@ def parse_password(output):
 #################### IntCode VM ####################
 
 
+class ASCIIComputer:
+    def __init__(self, program, print_io=False):
+        self.vm = VM(program)
+        self.print_io = print_io
+        self.interactive = False
+
+    def run_command(self, command=""):
+        if self.print_io and not self.interactive:
+            print(command)
+        self._add_input_ascii(command)
+        return self.run()
+
+    def run_interactive(self):
+        self.interactive = True
+        print(self.run())
+        while not self.vm.is_halted:
+            command = input()
+            self.run_command(command)
+        self.interactive = False
+
+    def run(self):
+        self.vm.run()
+        output = self._get_output_ascii()
+        if self.print_io or self.interactive:
+            print(output)
+        return output
+
+    def _add_input_ascii(self, s, end="\n"):
+        for c in s:
+            self.vm.add_input(ord(c))
+        self.vm.add_input(ord(end))
+
+    def _get_output_ascii(self):
+        s = "".join(chr(o) for o in self.vm.stdout)
+        self.vm.stdout = deque()
+        return s
+
+
 def list_to_dict(l):
     return dict(zip(range(len(l)), l))
 
 
 class VM:
-    def __init__(self, program, print_io=False, interactive_input=False):
+    def __init__(self, program):
         self.memory = defaultdict(float, list_to_dict(program))
         self.pc = 0
         self.relative_base = 0
@@ -169,8 +212,6 @@ class VM:
         self.stdout = deque()
         self.is_halted = False
         self.is_waiting_for_input = False
-        self.print_io = print_io
-        self.interactive_input = interactive_input
 
         self.opcodes = {
             1: (self.op_add, 3),
@@ -189,11 +230,6 @@ class VM:
         self.stdin.append(value)
         self.is_waiting_for_input = False
 
-    def add_input_ascii(self, s, end="\n"):
-        for c in s:
-            self.add_input(ord(c))
-        self.add_input(ord(end))
-
     def get_output(self):
         if len(self.stdout) == 0:
             return None
@@ -203,16 +239,6 @@ class VM:
         if len(self.stdout) < n:
             return None
         return [self.stdout.popleft() for i in range(n)]
-
-    def get_output_ascii(self):
-        s = "".join(chr(o) for o in self.stdout)
-        self.stdout = deque()
-        return s
-
-    def run_ascii_command(self, command):
-        self.add_input_ascii(command)
-        self.run()
-        return self.get_output_ascii()
 
     def run(self):
         while not self.is_halted and not self.is_waiting_for_input:
@@ -262,30 +288,15 @@ class VM:
 
     def op_input(self, dest_p):
         if len(self.stdin) == 0:
-            if self.interactive_input:
-                inp = input() + "\n"
-                for c in inp:
-                    self.stdin.append(ord(c))
-            else:
-                self.is_waiting_for_input = True
-                return None
+            self.is_waiting_for_input = True
+            return None
         value = self.stdin.popleft()
-        if self.print_io:
-            try:
-                print(chr(value), end="")
-            except ValueError:
-                print("Unknown char:", value)
         self.memory[dest_p] = value
         return self.pc + 2
 
     def op_output(self, a_p):
         value = self.memory[a_p]
         self.stdout.append(value)
-        if self.print_io:
-            try:
-                print(chr(value), end="")
-            except ValueError:
-                print("Unknown char:", value)
         return self.pc + 2
 
     def op_jump_if_true(self, cond_p, value_p):
