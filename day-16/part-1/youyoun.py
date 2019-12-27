@@ -31,13 +31,11 @@ class YouyounSubmission(SubmissionPy):
         # :param s: input in string format
         # :return: solution flag
         # Your code goes here
-        input_ = np.array([int(x) for x in list(s)])
+        input_ = np.array([int(x) for x in s])
         n = len(input_)
+        for i in range(n):
+            _ = get_pattern(i, n)
+        pats = np.array(PATTERNS)
         for phase in range(FINAL_PHASE):
-            output = []
-            for i in range(n):
-                pattern = get_pattern(i, n)
-                s = abs(np.sum(pattern * input_)) % 10
-                output.append(s)
-            input_ = output.copy()
-        return "".join([str(output[i]) for i in range(8)])
+            input_ = np.mod(np.abs(pats @ input_), 10)
+        return "".join([str(input_[i]) for i in range(8)])
