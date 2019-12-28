@@ -75,7 +75,7 @@ class Solution
     last_y = nil
     loop do
       idle = true
-      puts queue.inspect
+      # puts queue.inspect
       50.times do |i|
         input = queue[i] || [-1]
         input = [-1] if input.empty?
