@@ -10,6 +10,7 @@ class IntCodeInterpreter
     @input = @prgm.clone
     @i = 0
     @relative_base = 0
+    @input_value = []
   end
 
   def run(input_value = [])
