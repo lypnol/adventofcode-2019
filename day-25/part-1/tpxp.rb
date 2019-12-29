@@ -20,12 +20,12 @@ class IntCodeInterpreter
       code = a[0] % 100
       modes = 3.times.to_a.map { |i| (a[0] / (10 ** (i+2))) % 10}
 
-      v = 3.times.to_a.map { |i|
+      v = 3.times.to_a.map do |i|
         r = a[i+1].to_i
         r = @input[r] if modes[i] == 0
         r = @input[@relative_base + r] if modes[i] == 2
         r.to_i
-      }
+      end
       case code
       when 99
         throw :haltAndCatchFire
@@ -191,7 +191,7 @@ class Solution
     @runner.run items_we_have.map{|item| "drop #{item}\n"}.join.chars.map &:ord
     # Consume the output
     catch :noInput do loop do @runner.run end end
-    output = nil
+    output = ""
 =begin Debug: did we get all items?
     output = @runner.run("inv\n".chars.map &:ord).chr
     catch :noInput do loop do output += @runner.run.chr end end
