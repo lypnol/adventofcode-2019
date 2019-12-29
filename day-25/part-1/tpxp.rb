@@ -95,7 +95,7 @@ class Solution
         mode = :items
         next
       end
-      r = /\- ([a-z ]+)/.match line
+      r = /\- ([a-z 0-9A-Z]+)/.match line
       if r
         doors.push r[1] if mode == :doors
         items.push r[1] if mode == :items
