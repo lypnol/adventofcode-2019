@@ -1,107 +1,80 @@
 from tool.runners.python import SubmissionPy
-from itertools import permutations
+from itertools import permutations, cycle
 
 def get_optcode_param(n):
-    L = list(str(n))
-    c = (L[-1], L[:-2][::-1])
-    while len(c[1]) < 3:
-        c[1].append('0')
-    return c
+    return (n%100, [(n//100)%10, (n//1000)%10, n//10000])
 
-class Intcode(object):
-    def __init__(self, phase,s):
-        self.output = None
-        self.input = [phase]
-        self.l = list(map(int, s.split(',')))
-        self.index = 0
+class IntCode(object):
+    def __init__(self, l, inp):
+        self.l = l
+        self.out = None
+        self.inp = inp
 
     def choose(self, v, m):
-        if m == '0':
+        if m == 0:
             return self.l[v]
         return v
 
-    def run_intcode(self):
-        while self.l[self.index] != 99:
-            c = get_optcode_param(self.l[self.index])
-            if c[0] == '1':
-                index1 = self.choose(self.index+1, c[1][0])
-                index2 = self.choose(self.index+2, c[1][1])
-                index3 = self.choose(self.index+3, c[1][2])
-                self.l[index3] = self.l[index1] + self.l[index2]
-                self.index+= 4
-            elif c[0] == '2':
-                index1 = self.choose(self.index+1, c[1][0])
-                index2 = self.choose(self.index+2, c[1][1])
-                index3 = self.choose(self.index+3, c[1][2])
-                self.l[index3] = self.l[index1] * self.l[index2]
-                self.index += 4
-            elif c[0] == '3':
-                index1 = self.l[self.index+1]
-                if not self.input :
-                    return self.output
-                self.l[index1] = self.input.pop()
-                self.index+= 2
-            elif c[0] == '4':
-                index1 = self.choose(self.index+1, c[1][0])
-                self.output = self.l[index1]
-                self.index += 2
-            elif c[0] == '5':
-                index1 = self.choose(self.index+1, c[1][0])
-                index2 = self.choose(self.index+2, c[1][1])
-                if self.l[index1]:
-                    self.index = self.l[index2]
-                else :
-                    self.index += 3
-            elif c[0] == '6':
-                index1 = self.choose(self.index+1, c[1][0])
-                index2 = self.choose(self.index+2, c[1][1])
-                if not self.l[index1]:
-                    self.index = self.l[index2]
-                else :
-                    self.index += 3
-            elif c[0] == '7':
-                index1 = self.choose(self.index+1, c[1][0])
-                index2 = self.choose(self.index+2, c[1][1])
-                index3 = self.choose(self.index+3, c[1][2])
-                if self.l[index1] < self.l[index2]:
-                    self.l[index3] = 1
-                else :
-                    self.l[index3] = 0
-                self.index += 4
-            elif c[0] == '8':
-                index1 = self.choose(self.index+1, c[1][0])
-                index2 = self.choose(self.index+2, c[1][1])
-                index3 = self.choose(self.index+3, c[1][2])
-                if self.l[index1] == self.l[index2]:
-                    self.l[index3] = 1
-                else :
-                    self.l[index3] = 0
-                self.index += 4
-        return self.output
+    def add(self, args, i):
+        self.l[args[2]] =  self.l[args[1]] + self.l[args[0]]
+        return i+4
+
+    def mul(self, args, i):
+        self.l[args[2]] =  self.l[args[1]] * self.l[args[0]]
+        return i+4
+    
+    def ins(self, args, i):
+        self.l[args[0]] = self.inp.pop()
+        return i+2
+
+    def ret(self, args, i):
+        self.out = self.l[args[0]]
+        return i+2
+    
+    def jump_true(self, args, i):
+        return self.l[args[1]] if self.l[args[0]] else i+3
+    
+    def jump_false(self, args, i):
+        return self.l[args[1]] if not self.l[args[0]] else i+3
+
+    def less_than(self, args, i):
+        self.l[args[2]] = 1 if self.l[args[0]] < self.l[args[1]] else 0
+        return i+4
+
+    def equals(self, args, i):
+        self.l[args[2]] = 1 if self.l[args[0]] == self.l[args[1]] else 0
+        return i+4
+
+    def run(self):
+        i = 0
+        opcodes = [0,(self.add, 3), (self.mul, 3), (self.ins,1), (self.ret, 1), (self.jump_true, 2), (self.jump_false, 2), (self.less_than, 3), (self.equals, 3)]
+        while self.l[i] != 99:
+            opcode, params = get_optcode_param(self.l[i])
+            if opcode == 3 and not self.inp:
+                yield self.out
+                self.out = None
+            f,r = opcodes[opcode]
+            l = [self.choose(i+k+1,params[k]) for k in range(r)]
+            i = f(l, i)
+        return self.out
 
 def compute(s, phases):
-    objs = []
-    for i in range(5):
-        objs.append(Intcode(phases[i],s))
-    i = 0
-    objs[0].input.insert(0, 0)
-    while True:
-        v = objs[i%5].run_intcode()
-        if v :
-            objs[(i+1)%5].input.insert(0,v)
-            objs[(i+1)%5].output = None
-        else :
-            return objs[-1].output
-        i+= 1
+    objs = [IntCode(s.copy(), [phase]) for phase in phases]
+    outs = [i.run() for i in objs]
+    objs[0].inp.insert(0, 0)
+    for i in cycle(range(5)):
+        try :
+            v = next(outs[i])
+            objs[(i+1)%5].inp.insert(0,v)
+        except StopIteration as err:
+            if i == 4:
+                return err.value
+            objs[(i+1)%5].inp.insert(0,err.value)
 
 
 class FrenkiSubmission(SubmissionPy):
     def run(self, s):
-        r = 0
-        for phase in permutations(range(5,10)):
-            res = compute(s, phase)
-            if res and  res > r:
-                r = res
-        return r
+        l = [int(i) for i in s.split(',')]
+        return max(compute(l, phase) for phase in permutations(range(5,10)))
 
         
