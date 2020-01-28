@@ -4,13 +4,13 @@ import subprocess
 from tool.runners.wrapper import SubmissionWrapper
 
 
-class SubmissionDeno(SubmissionWrapper):
+class SubmissionDenoTS(SubmissionWrapper):
     def __init__(self, file):
         SubmissionWrapper.__init__(self)
         self.file = file
 
     def language(self):
-        return "deno.js"
+        return "deno.ts"
 
     def exec(self, input):
         try:
@@ -24,4 +24,4 @@ class SubmissionDeno(SubmissionWrapper):
                 return None
 
     def __call__(self):
-        return SubmissionDeno(self.file)
+        return SubmissionDenoTS(self.file)

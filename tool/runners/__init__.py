@@ -9,6 +9,7 @@ from tool.runners.intcode import SubmissionIntcode
 from tool.runners.java import SubmissionJava
 from tool.runners.node import SubmissionNode
 from tool.runners.deno import SubmissionDeno
+from tool.runners.deno_ts import SubmissionDenoTS
 from tool.runners.cython_aoc import SubmissionPyx
 from tool.runners.python import SubmissionPy
 from tool.runners.ruby import SubmissionRb
@@ -26,7 +27,8 @@ TOOL_BY_LANGUAGE = {
     "intcode": "python",
     "java": "java",
     "js": "node",
-    "mjs": "deno",
+    "deno.js": "deno",
+    "deno.ts": "deno",
     "ts": "./node_modules/.bin/ts-node",
     "py": "python",
     "pyx": "cython",
@@ -41,10 +43,6 @@ LANGUAGES = list(TOOL_BY_LANGUAGE.keys())
 
 def ext_by_language(x):
     return "." + str(x)
-
-
-def language_by_ext(x):
-    return str(x)[1:]
 
 
 def load_submission_runnable(path, language):
@@ -66,8 +64,10 @@ def load_submission_runnable(path, language):
         return SubmissionJava(path)
     elif language == "js":
         return SubmissionNode(path)
-    elif language == "mjs":
+    elif language == "deno.js":
         return SubmissionDeno(path)
+    elif language == "deno.ts":
+        return SubmissionDenoTS(path)
     elif language == "rb":
         return SubmissionRb(path)
     elif language == "rs":
