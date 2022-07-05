@@ -9,14 +9,9 @@ fn main() {
     println!("{}", output);
 }
 
-fn run(input: &str) -> usize {
-    input
-        .split_whitespace()
-        .map(|w| {
-            let mass: usize = w.parse().unwrap();
-            mass / 3 - 2
-        })
-        .sum()
+fn run(input: &str) -> isize {
+    // Your code goes here
+    0
 }
 
 #[cfg(test)]
@@ -25,6 +20,6 @@ mod tests {
 
     #[test]
     fn run_test() {
-        assert_eq!(run("12\n14\n"), 4)
+        assert_eq!(run("Test example"), 0)
     }
 }

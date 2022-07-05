@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = []
 
 [dependencies]
+itertools = "0.8"
 
 [[bin]]
 name = "day-01-part-1-evqna"
@@ -68,6 +69,62 @@ path = "./day-07/part-1/atauveron.rs"
 [[bin]]
 name = "day-07-part-2-atauveron"
 path = "./day-07/part-2/atauveron.rs"
+
+[[bin]]
+name = "day-03-part-1-evqna"
+path = "./day-03/part-1/evqna.rs"
+
+[[bin]]
+name = "day-03-part-2-evqna"
+path = "./day-03/part-2/evqna.rs"
+
+[[bin]]
+name = "day-04-part-1-evqna"
+path = "./day-04/part-1/evqna.rs"
+
+[[bin]]
+name = "day-04-part-2-evqna"
+path = "./day-04/part-2/evqna.rs"
+
+[[bin]]
+name = "day-05-part-1-evqna"
+path = "./day-05/part-1/evqna.rs"
+
+[[bin]]
+name = "day-05-part-2-evqna"
+path = "./day-05/part-2/evqna.rs"
+
+[[bin]]
+name = "day-06-part-1-evqna"
+path = "./day-06/part-1/evqna.rs"
+
+[[bin]]
+name = "day-06-part-2-evqna"
+path = "./day-06/part-2/evqna.rs"
+
+[[bin]]
+name = "day-07-part-1-evqna"
+path = "./day-07/part-1/evqna.rs"
+
+[[bin]]
+name = "day-07-part-2-evqna"
+path = "./day-07/part-2/evqna.rs"
+
+[[bin]]
+name = "day-08-part-1-evqna"
+path = "./day-08/part-1/evqna.rs"
+
+[[bin]]
+name = "day-08-part-2-evqna"
+path = "./day-08/part-2/evqna.rs"
+
+[[bin]]
+name = "day-09-part-1-evqna"
+path = "./day-09/part-1/evqna.rs"
+
+[[bin]]
+name = "day-09-part-2-evqna"
+path = "./day-09/part-2/evqna.rs"
 
 [[bin]]
 name = "day-08-part-1-atauveron"
